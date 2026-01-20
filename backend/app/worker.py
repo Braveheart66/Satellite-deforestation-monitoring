@@ -6,11 +6,10 @@ from app.utils import sqm_to_hectares
 def run_ndvi_job(job_id, payload):
     try:
         # -----------------------------
-        # Extract inputs
+        # Extract AOI safely
         # -----------------------------
         aoi_geojson = payload["aoi"]
 
-        # Defensive handling (Feature or FeatureCollection)
         if aoi_geojson["type"] == "FeatureCollection":
             aoi_geojson = aoi_geojson["features"][0]
 
@@ -21,11 +20,10 @@ def run_ndvi_job(job_id, payload):
 
         past_start = f"{past_year}-01-01"
         past_end = f"{past_year}-12-31"
-
         present_start = f"{present_year}-01-01"
         present_end = f"{present_year}-12-31"
 
-        threshold = 0.4  # fixed NDVI threshold (stable)
+        threshold = 0.4
 
         # -----------------------------
         # NDVI computation
@@ -38,14 +36,12 @@ def run_ndvi_job(job_id, payload):
             "present": present
         }).getInfo()
 
-        # -----------------------------
-        # Area conversion
-        # -----------------------------
         past_ha = sqm_to_hectares(results["past"])
         present_ha = sqm_to_hectares(results["present"])
 
         rate = (
-            ((present_ha - past_ha) / past_ha) / (present_year - past_year) * 100
+            ((present_ha - past_ha) / past_ha) /
+            (present_year - past_year) * 100
             if past_ha > 0 else 0
         )
 
@@ -65,3 +61,5 @@ def run_ndvi_job(job_id, payload):
             "status": "failed",
             "error": str(e)
         }
+
+
