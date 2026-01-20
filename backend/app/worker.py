@@ -24,6 +24,12 @@ def run_ndvi_job(job_id, payload):
             "present": present
         }).getInfo()
 
+        aoi_geojson = payload["aoi"]
+
+        # Extract polygon coordinates for EE
+        coords = aoi_geojson["geometry"]["coordinates"]
+
+
         past_ha = sqm_to_hectares(results["past"])
         present_ha = sqm_to_hectares(results["present"])
 
