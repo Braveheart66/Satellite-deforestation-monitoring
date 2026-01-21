@@ -6,6 +6,10 @@ from app.schemas import NDVIRequest
 from app.jobs import jobs
 from app.worker import run_ndvi_job
 from app.ee_client import init_ee
+from typing import Dict
+
+JOB_STORE: Dict[str, dict] = {}
+
 
 """
 DESIGN OVERVIEW
