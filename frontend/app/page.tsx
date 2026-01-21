@@ -36,12 +36,14 @@ export default function Home() {
       const cleanedAOI =
         aoi.type === "FeatureCollection" ? aoi.features[0] : aoi;
 
+      const geometry = cleanedAOI.geometry; // ✅ THIS IS THE KEY
+
       const { job_id } = await submitAnalysis({
-        geometry: cleanedAOI.geometry ?? cleanedAOI,
+        geometry,          // ✅ REQUIRED
         past_year: pastYear,
         present_year: presentYear,
       });
-
+      
       // 2️⃣ Poll for result
       const interval = setInterval(async () => {
         const res = await fetchResult(job_id);
