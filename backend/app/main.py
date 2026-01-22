@@ -6,13 +6,14 @@ import shutil
 from pathlib import Path
 import threading
 
+# ================================
+# INTERNAL IMPORTS (MATCH TREE)
+# ================================
 from app.worker import run_ndvi_job
 from app.schemas import NDVIRequest
 from app.ee_client import init_ee
-
-from app.routes.analyze import router as analyze_router
-from app.routes.jobs import router as jobs_router
-from app.routes.tiles import router as tiles_router
+from app.jobs import router as jobs_router
+from app.tiles import router as tiles_router
 
 # ================================
 # CREATE FASTAPI APP
@@ -42,12 +43,11 @@ app.add_middleware(
 # ================================
 # ROUTERS
 # ================================
-app.include_router(analyze_router)
 app.include_router(jobs_router)
 app.include_router(tiles_router)
 
 # ================================
-# EARTH ENGINE INIT
+# EARTH ENGINE INIT (BACKGROUND)
 # ================================
 def init_ee_background():
     try:
@@ -81,7 +81,7 @@ async def upload_drone_image(file: UploadFile = File(...)):
     return {
         "file_id": file_id,
         "filename": file.filename,
-        "size_mb": round(path.stat().st_size / (1024 * 1024), 2)
+        "size_mb": round(path.stat().st_size / (1024 * 1024), 2),
     }
 
 # ================================
@@ -91,7 +91,7 @@ async def upload_drone_image(file: UploadFile = File(...)):
 async def analyze(
     req: NDVIRequest,
     bg: BackgroundTasks,
-    drone_image_id: str | None = None
+    drone_image_id: str | None = None,
 ):
     job_id = str(uuid.uuid4())
     JOB_STORE[job_id] = {"status": "processing"}
