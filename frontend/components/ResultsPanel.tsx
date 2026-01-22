@@ -18,57 +18,51 @@ const TileLayer = dynamic(
 );
 
 /* =========================================================
-   RESULTS PANEL — FULLY UPGRADED
+   RESULTS PANEL (PRODUCTION)
 ========================================================= */
 export default function ResultsPanel({ result }: { result: any }) {
   if (!result) return null;
 
   const tiles = result.ndvi_tiles || {};
-  const histogram = result.ndvi_histogram || null;
+  const histogram = result.ndvi_histogram || [];
 
   /* =======================================================
      VIEW / MODE STATE
   ======================================================= */
   const [mode, setMode] = useState<"ndvi" | "diff">("ndvi");
-  const [opacity, setOpacity] = useState<number>(0.7);
+  const [opacity, setOpacity] = useState<number>(0.6);
 
   /* =======================================================
-     STATIC MAP CENTER (PREVENT REINIT BUG)
+     STATIC MAP CENTER (PREVENT REINIT)
   ======================================================= */
   const center = useMemo<[number, number]>(() => [0, 0], []);
 
   /* =======================================================
-     TILE SELECTION LOGIC
+     TILE SELECTION (GUARDED)
   ======================================================= */
-  const baseTile: string | null =
-    mode === "ndvi"
-      ? typeof tiles.present === "string"
-        ? tiles.present
-        : null
-      : typeof tiles.diff === "string"
-      ? tiles.diff
-      : null;
+  const baseTile =
+    mode === "ndvi" ? tiles.present : tiles.diff;
 
-  const overlayTile: string | null =
-    mode === "ndvi" && typeof tiles.past === "string"
-      ? tiles.past
-      : null;
+  const overlayTile =
+    mode === "ndvi" ? tiles.past : null;
+
+  const hasBaseTile = typeof baseTile === "string";
 
   /* =======================================================
-     VEGETATION GAIN / LOSS CLASSIFICATION
+     VEGETATION TREND CLASSIFICATION
   ======================================================= */
-  const changeHa =
+  const change =
     result.satellite_comparison?.change_ha ?? null;
 
-  let vegLabel = "Stable";
+  let vegStatus = "Stable";
   let vegColor = "#7f8c8d";
 
-  if (typeof changeHa === "number") {
-    if (changeHa > 0) {
-      vegLabel = "Vegetation Gain";
+  if (change !== null) {
+    if (change > 0) {
+      vegStatus = "Vegetation Gain";
       vegColor = "#27ae60";
-    } else if (changeHa < 0) {
-      vegLabel = "Vegetation Loss";
+    } else if (change < 0) {
+      vegStatus = "Vegetation Loss";
       vegColor = "#c0392b";
     }
   }
@@ -82,7 +76,7 @@ export default function ResultsPanel({ result }: { result: any }) {
         marginTop: "2rem",
         padding: "1.5rem",
         borderRadius: "16px",
-        background: "#ffffff",
+        background: "#fff",
         boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
       }}
     >
@@ -110,26 +104,51 @@ export default function ResultsPanel({ result }: { result: any }) {
           />
           <StatBox
             label="Vegetation Trend"
-            value={vegLabel}
+            value={vegStatus}
             color={vegColor}
           />
         </div>
       )}
 
-      {/* ================= MODE TOGGLES ================= */}
+      {/* ================= MODE CONTROLS ================= */}
       <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1rem" }}>
-        <button onClick={() => setMode("ndvi")}>🌿 NDVI</button>
-        <button onClick={() => setMode("diff")}>🔥 ΔNDVI</button>
+        <button
+          onClick={() => setMode("ndvi")}
+          style={{
+            padding: "0.5rem 1rem",
+            borderRadius: "6px",
+            border: "none",
+            cursor: "pointer",
+            background: mode === "ndvi" ? "#000" : "#eee",
+            color: mode === "ndvi" ? "#fff" : "#000",
+          }}
+        >
+          🌿 NDVI
+        </button>
+        <button
+          onClick={() => setMode("diff")}
+          style={{
+            padding: "0.5rem 1rem",
+            borderRadius: "6px",
+            border: "none",
+            cursor: "pointer",
+            background: mode === "diff" ? "#000" : "#eee",
+            color: mode === "diff" ? "#fff" : "#000",
+          }}
+        >
+          🔥 ΔNDVI
+        </button>
       </div>
 
       {/* ================= MAP ================= */}
-      {typeof baseTile === "string" && (
+      {hasBaseTile && (
         <div
           style={{
             position: "relative",
             height: "420px",
             borderRadius: "14px",
             overflow: "hidden",
+            marginBottom: "1.5rem",
           }}
         >
           <MapContainer
@@ -137,20 +156,15 @@ export default function ResultsPanel({ result }: { result: any }) {
             zoom={5}
             style={{ height: "100%", width: "100%" }}
           >
-            {/* BASE TILE (PRESENT NDVI OR ΔNDVI) */}
             <TileLayer url={baseTile} />
 
-            {/* OVERLAY TILE (PAST NDVI WITH OPACITY SWIPE) */}
-            {typeof overlayTile === "string" && (
-              <TileLayer
-                url={overlayTile}
-                opacity={opacity}
-              />
+            {overlayTile && typeof overlayTile === "string" && (
+              <TileLayer url={overlayTile} opacity={opacity} />
             )}
           </MapContainer>
 
           {/* ================= OPACITY SWIPE ================= */}
-          {typeof overlayTile === "string" && (
+          {overlayTile && (
             <div
               style={{
                 position: "absolute",
@@ -169,9 +183,7 @@ export default function ResultsPanel({ result }: { result: any }) {
                 max={1}
                 step={0.01}
                 value={opacity}
-                onChange={(e) =>
-                  setOpacity(Number(e.target.value))
-                }
+                onChange={(e) => setOpacity(Number(e.target.value))}
                 style={{ width: "100%" }}
               />
               <div
@@ -191,10 +203,8 @@ export default function ResultsPanel({ result }: { result: any }) {
 
       {/* ================= HISTOGRAM ================= */}
       {Array.isArray(histogram) && histogram.length > 0 && (
-        <div style={{ marginTop: "1.5rem" }}>
-          <h4 style={{ marginBottom: "0.5rem" }}>
-            📊 NDVI Distribution
-          </h4>
+        <div style={{ marginTop: "1rem" }}>
+          <h4 style={{ marginBottom: "0.5rem" }}>📊 NDVI Distribution</h4>
           <div
             style={{
               display: "flex",
@@ -206,19 +216,22 @@ export default function ResultsPanel({ result }: { result: any }) {
             {histogram.map((bin: any, i: number) => (
               <div
                 key={i}
-                title={`NDVI ${bin.bin}: ${bin.count}`}
                 style={{
-                  height: `${bin.count}px`,
-                  width: "10px",
+                  width: "12px",
+                  height: `${Math.max(2, bin.count / 10)}px`,
                   background:
-                    bin.bin < 0
-                      ? "#c0392b"
-                      : bin.bin < 0.2
+                    bin.mean > 0.3
+                      ? "#27ae60"
+                      : bin.mean > 0.15
                       ? "#f1c40f"
-                      : "#27ae60",
+                      : "#c0392b",
                 }}
+                title={`NDVI ~ ${bin.mean?.toFixed(2)}`}
               />
             ))}
+          </div>
+          <div style={{ fontSize: "0.75rem", color: "#555", marginTop: "0.25rem" }}>
+            Red = Low NDVI | Yellow = Medium | Green = High
           </div>
         </div>
       )}
@@ -247,16 +260,8 @@ function StatBox({
         border: "1px solid #ddd",
       }}
     >
-      <div style={{ fontSize: "0.8rem", color: "#555" }}>
-        {label}
-      </div>
-      <div
-        style={{
-          fontSize: "1.4rem",
-          fontWeight: 700,
-          color,
-        }}
-      >
+      <div style={{ fontSize: "0.8rem", color: "#555" }}>{label}</div>
+      <div style={{ fontSize: "1.4rem", fontWeight: 700, color }}>
         {value}
       </div>
     </div>
