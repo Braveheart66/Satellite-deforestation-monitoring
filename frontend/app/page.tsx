@@ -9,6 +9,11 @@ import MapAOI from "../components/MapAOI";
 export default function DeforestationMonitor() {
   /* ---------------- STATE ---------------- */
   const [aoi, setAOI] = useState<any>(null);
+  const [geojsonInput, setGeojsonInput] = useState("");
+  const [aoiMode, setAOIMode] = useState<"map" | "geojson">("map");
+  const [geojsonError, setGeojsonError] = useState<string | null>(null);
+
+
 
   const [pastYear, setPastYear] = useState<number>(2016);
   const [presentYear, setPresentYear] = useState<number>(2024);
@@ -138,20 +143,93 @@ export default function DeforestationMonitor() {
       </p>
 
       {/* ================= STEP 1 ================= */}
-      <section style={sectionStyle}>
-        <h2>Step 1: Select Area of Interest</h2>
-        <p style={{ color: "#666", fontSize: "0.9rem" }}>
-          Draw a polygon on the map to define the area
-        </p>
+      <section className="card fade-in" style={{ padding: "1.5rem", marginBottom: "2rem" }}>
+      <h2 className="section-title">Step 1: Select Area of Interest</h2>
 
+      <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
+        <button onClick={() => setAOIMode("map")} className="btn">
+          🗺️ Draw on Map
+        </button>
+        <button onClick={() => setAOIMode("geojson")} className="btn">
+          🧾 Paste GeoJSON
+        </button>
+      </div>
+
+      {aoiMode === "map" && (
         <MapAOI onAOISelect={setAOI} />
+      )}
 
-        {aoi && (
-          <div style={infoBoxStyle}>
-            AOI selected with {aoi[0].length} coordinates
-          </div>
-        )}
-      </section>
+      {aoiMode === "geojson" && (
+        <>
+          <textarea
+            placeholder="Paste GeoJSON Polygon coordinates here"
+            value={geojsonInput}
+            onChange={(e) => setGeojsonInput(e.target.value)}
+            style={{
+              width: "100%",
+              height: "140px",
+              background: "#000",
+              color: "#fff",
+              borderRadius: "8px",
+              padding: "1rem",
+              border: "1px solid #333",
+            }}
+          />
+          
+          <button
+          style={{ marginTop: "1rem" }}
+          onClick={() => {
+            try {
+              setGeojsonError(null);
+
+              const parsed = JSON.parse(geojsonInput);
+
+              // Accept both full GeoJSON and raw coordinates
+              let coordinates: number[][][];
+
+              if (parsed.type === "Polygon" && parsed.coordinates) {
+                coordinates = parsed.coordinates;
+              } else if (Array.isArray(parsed)) {
+                coordinates = parsed;
+              } else {
+                throw new Error("Invalid GeoJSON format");
+              }
+
+              // Basic validation
+              if (
+                !Array.isArray(coordinates) ||
+                !Array.isArray(coordinates[0]) ||
+                coordinates[0].length < 3
+              ) {
+                throw new Error("Invalid polygon coordinates");
+              }
+
+              setAOI(coordinates);
+
+            } catch (err: any) {
+              setGeojsonError(err.message || "Invalid GeoJSON");
+            }
+          }}
+        >
+          ✅ Use GeoJSON AOI
+        </button>
+        {geojsonError && (
+        <div style={{ marginTop: "0.5rem", color: "red" }}>
+          ❌ {geojsonError}
+        </div>
+      )}
+
+
+        </>
+      )}
+
+      {aoi && (
+        <div style={{ marginTop: "1rem", color: "var(--accent)" }}>
+          AOI selected with {aoi[0].length} points
+        </div>
+      )}
+    </section>
+
 
       {/* ================= STEP 2 ================= */}
       <section style={sectionStyle}>
