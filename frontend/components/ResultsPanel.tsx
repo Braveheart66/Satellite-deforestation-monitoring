@@ -18,7 +18,7 @@ const TileLayer = dynamic(
 );
 
 /* =========================================================
-   RESULTS PANEL
+   RESULTS PANEL — FULLY UPGRADED
 ========================================================= */
 export default function ResultsPanel({ result }: { result: any }) {
   if (!result) return null;
@@ -27,40 +27,48 @@ export default function ResultsPanel({ result }: { result: any }) {
   const histogram = result.ndvi_histogram || null;
 
   /* =======================================================
-     VIEW MODES
+     VIEW / MODE STATE
   ======================================================= */
   const [mode, setMode] = useState<"ndvi" | "diff">("ndvi");
-  const [opacity, setOpacity] = useState<number>(1);
+  const [opacity, setOpacity] = useState<number>(0.7);
 
   /* =======================================================
-     STATIC MAP CENTER (NO REINIT)
+     STATIC MAP CENTER (PREVENT REINIT BUG)
   ======================================================= */
   const center = useMemo<[number, number]>(() => [0, 0], []);
 
   /* =======================================================
-     TILE SELECTION
+     TILE SELECTION LOGIC
   ======================================================= */
-  const baseTile =
-    mode === "ndvi" ? tiles.present || null : tiles.diff || null;
+  const baseTile: string | null =
+    mode === "ndvi"
+      ? typeof tiles.present === "string"
+        ? tiles.present
+        : null
+      : typeof tiles.diff === "string"
+      ? tiles.diff
+      : null;
 
-  const overlayTile =
-    mode === "ndvi" ? tiles.past || null : null;
+  const overlayTile: string | null =
+    mode === "ndvi" && typeof tiles.past === "string"
+      ? tiles.past
+      : null;
 
   /* =======================================================
-     VEGETATION CLASSIFICATION
+     VEGETATION GAIN / LOSS CLASSIFICATION
   ======================================================= */
-  const change =
+  const changeHa =
     result.satellite_comparison?.change_ha ?? null;
 
-  let vegStatus = "Stable";
-  let vegColor = "#999";
+  let vegLabel = "Stable";
+  let vegColor = "#7f8c8d";
 
-  if (change !== null) {
-    if (change > 0) {
-      vegStatus = "Vegetation Gain";
+  if (typeof changeHa === "number") {
+    if (changeHa > 0) {
+      vegLabel = "Vegetation Gain";
       vegColor = "#27ae60";
-    } else if (change < 0) {
-      vegStatus = "Vegetation Loss";
+    } else if (changeHa < 0) {
+      vegLabel = "Vegetation Loss";
       vegColor = "#c0392b";
     }
   }
@@ -74,7 +82,7 @@ export default function ResultsPanel({ result }: { result: any }) {
         marginTop: "2rem",
         padding: "1.5rem",
         borderRadius: "16px",
-        background: "#fff",
+        background: "#ffffff",
         boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
       }}
     >
@@ -102,20 +110,20 @@ export default function ResultsPanel({ result }: { result: any }) {
           />
           <StatBox
             label="Vegetation Trend"
-            value={vegStatus}
+            value={vegLabel}
             color={vegColor}
           />
         </div>
       )}
 
-      {/* ================= MODE CONTROLS ================= */}
+      {/* ================= MODE TOGGLES ================= */}
       <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1rem" }}>
         <button onClick={() => setMode("ndvi")}>🌿 NDVI</button>
         <button onClick={() => setMode("diff")}>🔥 ΔNDVI</button>
       </div>
 
       {/* ================= MAP ================= */}
-      {baseTile && (
+      {typeof baseTile === "string" && (
         <div
           style={{
             position: "relative",
@@ -129,9 +137,11 @@ export default function ResultsPanel({ result }: { result: any }) {
             zoom={5}
             style={{ height: "100%", width: "100%" }}
           >
+            {/* BASE TILE (PRESENT NDVI OR ΔNDVI) */}
             <TileLayer url={baseTile} />
 
-            {overlayTile && (
+            {/* OVERLAY TILE (PAST NDVI WITH OPACITY SWIPE) */}
+            {typeof overlayTile === "string" && (
               <TileLayer
                 url={overlayTile}
                 opacity={opacity}
@@ -140,7 +150,7 @@ export default function ResultsPanel({ result }: { result: any }) {
           </MapContainer>
 
           {/* ================= OPACITY SWIPE ================= */}
-          {overlayTile && (
+          {typeof overlayTile === "string" && (
             <div
               style={{
                 position: "absolute",
@@ -159,10 +169,19 @@ export default function ResultsPanel({ result }: { result: any }) {
                 max={1}
                 step={0.01}
                 value={opacity}
-                onChange={(e) => setOpacity(Number(e.target.value))}
+                onChange={(e) =>
+                  setOpacity(Number(e.target.value))
+                }
                 style={{ width: "100%" }}
               />
-              <div style={{ color: "#fff", textAlign: "center", fontSize: "0.85rem" }}>
+              <div
+                style={{
+                  color: "#fff",
+                  textAlign: "center",
+                  fontSize: "0.85rem",
+                  marginTop: "0.25rem",
+                }}
+              >
                 Past ↔ Present Opacity
               </div>
             </div>
@@ -171,17 +190,32 @@ export default function ResultsPanel({ result }: { result: any }) {
       )}
 
       {/* ================= HISTOGRAM ================= */}
-      {histogram && (
+      {Array.isArray(histogram) && histogram.length > 0 && (
         <div style={{ marginTop: "1.5rem" }}>
-          <h4>📊 NDVI Distribution</h4>
-          <div style={{ display: "flex", gap: "4px", alignItems: "flex-end" }}>
+          <h4 style={{ marginBottom: "0.5rem" }}>
+            📊 NDVI Distribution
+          </h4>
+          <div
+            style={{
+              display: "flex",
+              gap: "4px",
+              alignItems: "flex-end",
+              height: "120px",
+            }}
+          >
             {histogram.map((bin: any, i: number) => (
               <div
                 key={i}
+                title={`NDVI ${bin.bin}: ${bin.count}`}
                 style={{
                   height: `${bin.count}px`,
                   width: "10px",
-                  background: "#2ecc71",
+                  background:
+                    bin.bin < 0
+                      ? "#c0392b"
+                      : bin.bin < 0.2
+                      ? "#f1c40f"
+                      : "#27ae60",
                 }}
               />
             ))}
@@ -213,8 +247,16 @@ function StatBox({
         border: "1px solid #ddd",
       }}
     >
-      <div style={{ fontSize: "0.8rem", color: "#555" }}>{label}</div>
-      <div style={{ fontSize: "1.4rem", fontWeight: 700, color }}>
+      <div style={{ fontSize: "0.8rem", color: "#555" }}>
+        {label}
+      </div>
+      <div
+        style={{
+          fontSize: "1.4rem",
+          fontWeight: 700,
+          color,
+        }}
+      >
         {value}
       </div>
     </div>

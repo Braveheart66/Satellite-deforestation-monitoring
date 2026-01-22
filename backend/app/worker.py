@@ -20,31 +20,49 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
         # --------------------------------------------------
         # SATELLITE NDVI (AREA + TILE MAPS)
         # --------------------------------------------------
-        past_sqm, past_tile = compute_satellite_ndvi(
+        result = {}
+
+        past_area, past_tile, past_hist = compute_satellite_ndvi(
             geometry,
             f"{past_year}-01-01",
             f"{past_year}-12-31",
             return_map=True
         )
 
-        present_sqm, present_tile = compute_satellite_ndvi(
+        present_area, present_tile, present_hist = compute_satellite_ndvi(
             geometry,
             f"{present_year}-01-01",
             f"{present_year}-12-31",
             return_map=True
         )
 
-        past_sqm = ee.Number(past_sqm).getInfo() or 0
-        present_sqm = ee.Number(present_sqm).getInfo() or 0
+        past_ha = ee.Number(past_area).getInfo() / 10000
+        present_ha = ee.Number(present_area).getInfo() / 10000
 
-        past_ha = past_sqm / 10000
-        present_ha = present_sqm / 10000
+        # ΔNDVI
+        diff_ndvi = ee.Image(present_tile).subtract(ee.Image(past_tile))
+        diff_vis = {
+            "min": -0.4,
+            "max": 0.4,
+            "palette": ["red", "white", "green"]
+        }
+        diff_tile = diff_ndvi.getMapId(diff_vis)["tile_fetcher"].url_format
 
-        satellite_rate = calculate_deforestation_rate(
-            past_ha,
-            present_ha,
-            present_year - past_year
-        )
+        result["ndvi_tiles"] = {
+            "past": past_tile,
+            "present": present_tile,
+            "diff": diff_tile
+        }
+
+        result["ndvi_histogram"] = present_hist
+
+        result["satellite_comparison"] = {
+            "past_year": past_year,
+            "present_year": present_year,
+            "past_cover_ha": round(past_ha, 2),
+            "present_cover_ha": round(present_ha, 2),
+            "change_ha": round(present_ha - past_ha, 2)
+        }
 
         # --------------------------------------------------
         # RESULT OBJECT (INITIALIZE ONCE)

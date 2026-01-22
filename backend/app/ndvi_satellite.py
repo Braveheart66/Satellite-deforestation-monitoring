@@ -10,55 +10,50 @@ def compute_satellite_ndvi(
 ):
     geometry = ee.Geometry.Polygon(aoi_coords)
 
-    nir_band = "B8"
-    red_band = "B4"
-    scale = 10
+    nir = "B8"
+    red = "B4"
 
-    img_collection = (
+    images = (
         ee.ImageCollection(collection)
         .filterBounds(geometry)
         .filterDate(start_date, end_date)
         .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", 40))
-        .select([nir_band, red_band])
+        .select([nir, red])
     )
 
-    if img_collection.size().getInfo() == 0:
-        return (0, None) if return_map else 0
+    if images.size().getInfo() == 0:
+        return (0, None, None, None) if return_map else 0
 
-    median_image = img_collection.median()
-
-    ndvi = median_image.normalizedDifference(
-        [nir_band, red_band]
-    ).rename("NDVI")
+    median = images.median()
+    ndvi = median.normalizedDifference([nir, red]).rename("NDVI")
 
     vegetation = ndvi.gt(threshold)
-    area_image = vegetation.multiply(ee.Image.pixelArea())
+    area_img = vegetation.multiply(ee.Image.pixelArea())
 
-    area_stats = area_image.reduceRegion(
+    area = area_img.reduceRegion(
         reducer=ee.Reducer.sum(),
         geometry=geometry,
-        scale=scale,
+        scale=10,
         maxPixels=1e13,
         bestEffort=True
-    )
-
-    area = ee.Number(area_stats.get("NDVI", 0))
+    ).get("NDVI", 0)
 
     if not return_map:
         return area
 
-    # -------------------------
-    # NDVI TILE METADATA
-    # -------------------------
-    vis = {
+    ndvi_vis = {
         "min": 0.0,
         "max": 0.8,
-        "palette": ["#8c510a", "#f6e8c3", "#01665e"]
+        "palette": ["brown", "yellow", "green"]
     }
 
-    map_id = ndvi.getMapId(vis)
+    ndvi_tile = ndvi.getMapId(ndvi_vis)["tile_fetcher"].url_format
 
-    return area, {
-        "mapid": map_id["mapid"],
-        "token": map_id["token"]
-    }
+    histogram = ndvi.reduceRegion(
+        reducer=ee.Reducer.histogram(20),
+        geometry=geometry,
+        scale=30,
+        maxPixels=1e13
+    ).get("NDVI")
+
+    return area, ndvi_tile, histogram
