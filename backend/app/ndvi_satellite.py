@@ -6,7 +6,7 @@ def compute_satellite_ndvi(
     aoi_coords,
     start_date,
     end_date,
-    threshold=0.4,
+    threshold=0.15,
     collection="COPERNICUS/S2_SR_HARMONIZED"
 ):
     geometry = ee.Geometry.Polygon(aoi_coords)
