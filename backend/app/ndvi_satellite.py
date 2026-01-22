@@ -60,6 +60,4 @@ def compute_satellite_ndvi(
     )
 
     # Area in square meters → hectares
-    vegetation_area_ha = ee.Number(area_stats.get("veg_area")).divide(10000)
-
-    return vegetation_area_ha
+    return ee.Number(area_stats.get("veg_area"))
