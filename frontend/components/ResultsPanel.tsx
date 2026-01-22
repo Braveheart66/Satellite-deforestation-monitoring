@@ -1,71 +1,47 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { useState, useMemo } from "react";
-import "leaflet/dist/leaflet.css";
+import { useMemo } from "react";
 
 /* =========================================================
-   DYNAMIC LEAFLET IMPORT (NO SSR)
-========================================================= */
-const MapContainer = dynamic(
-  () => import("react-leaflet").then((m) => m.MapContainer),
-  { ssr: false }
-);
-
-const TileLayer = dynamic(
-  () => import("react-leaflet").then((m) => m.TileLayer),
-  { ssr: false }
-);
-
-/* =========================================================
-   RESULTS PANEL (PRODUCTION)
+   RESULTS PANEL (NO TILES • STABLE • PRODUCTION SAFE)
+   - Removes all Earth Engine tiles
+   - Adds Gain vs Loss bar chart
 ========================================================= */
 export default function ResultsPanel({ result }: { result: any }) {
-  if (!result) return null;
+  if (!result || !result.satellite_comparison) return null;
 
-  const tiles = result.ndvi_tiles || {};
-  const histogram = result.ndvi_histogram || [];
-
-  /* =======================================================
-     VIEW / MODE STATE
-  ======================================================= */
-  const [mode, setMode] = useState<"ndvi" | "diff">("ndvi");
-  const [opacity, setOpacity] = useState<number>(0.6);
-
-  /* =======================================================
-     STATIC MAP CENTER (PREVENT REINIT)
-  ======================================================= */
-  const center = useMemo<[number, number]>(() => [0, 0], []);
+  const {
+    past_year,
+    present_year,
+    past_cover_ha,
+    present_cover_ha,
+    change_ha,
+  } = result.satellite_comparison;
 
   /* =======================================================
-     TILE SELECTION (GUARDED)
+     VEGETATION CLASSIFICATION
   ======================================================= */
-  const baseTile =
-    mode === "ndvi" ? tiles.present : tiles.diff;
-
-  const overlayTile =
-    mode === "ndvi" ? tiles.past : null;
-
-  const hasBaseTile = typeof baseTile === "string";
+  const trend =
+    change_ha > 0
+      ? { label: "Vegetation Gain", color: "#27ae60" }
+      : change_ha < 0
+      ? { label: "Vegetation Loss", color: "#c0392b" }
+      : { label: "Stable", color: "#7f8c8d" };
 
   /* =======================================================
-     VEGETATION TREND CLASSIFICATION
+     GAIN / LOSS SPLIT (SIMPLE MODEL)
+     You can refine this later with ΔNDVI bins
   ======================================================= */
-  const change =
-    result.satellite_comparison?.change_ha ?? null;
+  const gain = change_ha > 0 ? change_ha : 0;
+  const loss = change_ha < 0 ? Math.abs(change_ha) : 0;
+  const maxBar = Math.max(gain, loss, 1);
 
-  let vegStatus = "Stable";
-  let vegColor = "#7f8c8d";
-
-  if (change !== null) {
-    if (change > 0) {
-      vegStatus = "Vegetation Gain";
-      vegColor = "#27ae60";
-    } else if (change < 0) {
-      vegStatus = "Vegetation Loss";
-      vegColor = "#c0392b";
-    }
-  }
+  /* =======================================================
+     NDVI HISTOGRAM (OPTIONAL)
+  ======================================================= */
+  const histogram = Array.isArray(result.ndvi_histogram)
+    ? result.ndvi_histogram
+    : [];
 
   /* =======================================================
      RENDER
@@ -80,131 +56,70 @@ export default function ResultsPanel({ result }: { result: any }) {
         boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
       }}
     >
-      <h2 style={{ marginBottom: "1rem" }}>📊 Analysis Results</h2>
+      <h2 style={{ marginBottom: "1.5rem" }}>📊 Analysis Results</h2>
 
       {/* ================= STATS ================= */}
-      {result.satellite_comparison && (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr 1fr",
-            gap: "1rem",
-            marginBottom: "1.5rem",
-          }}
-        >
-          <StatBox
-            label={`Past (${result.satellite_comparison.past_year})`}
-            value={`${result.satellite_comparison.past_cover_ha} ha`}
-            color="#27ae60"
-          />
-          <StatBox
-            label={`Present (${result.satellite_comparison.present_year})`}
-            value={`${result.satellite_comparison.present_cover_ha} ha`}
-            color="#e67e22"
-          />
-          <StatBox
-            label="Vegetation Trend"
-            value={vegStatus}
-            color={vegColor}
-          />
-        </div>
-      )}
-
-      {/* ================= MODE CONTROLS ================= */}
-      <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1rem" }}>
-        <button
-          onClick={() => setMode("ndvi")}
-          style={{
-            padding: "0.5rem 1rem",
-            borderRadius: "6px",
-            border: "none",
-            cursor: "pointer",
-            background: mode === "ndvi" ? "#000" : "#eee",
-            color: mode === "ndvi" ? "#fff" : "#000",
-          }}
-        >
-          🌿 NDVI
-        </button>
-        <button
-          onClick={() => setMode("diff")}
-          style={{
-            padding: "0.5rem 1rem",
-            borderRadius: "6px",
-            border: "none",
-            cursor: "pointer",
-            background: mode === "diff" ? "#000" : "#eee",
-            color: mode === "diff" ? "#fff" : "#000",
-          }}
-        >
-          🔥 ΔNDVI
-        </button>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr 1fr",
+          gap: "1rem",
+          marginBottom: "2rem",
+        }}
+      >
+        <StatBox
+          label={`Past Vegetation (${past_year})`}
+          value={`${past_cover_ha} ha`}
+          color="#27ae60"
+        />
+        <StatBox
+          label={`Present Vegetation (${present_year})`}
+          value={`${present_cover_ha} ha`}
+          color="#e67e22"
+        />
+        <StatBox
+          label="Vegetation Trend"
+          value={trend.label}
+          color={trend.color}
+        />
       </div>
 
-      {/* ================= MAP ================= */}
-      {hasBaseTile && (
+      {/* ================= GAIN vs LOSS BAR ================= */}
+      <div style={{ marginBottom: "2rem" }}>
+        <h4 style={{ marginBottom: "0.75rem" }}>🌿 Vegetation Gain vs Loss</h4>
+
         <div
           style={{
-            position: "relative",
-            height: "420px",
-            borderRadius: "14px",
-            overflow: "hidden",
-            marginBottom: "1.5rem",
+            display: "flex",
+            alignItems: "flex-end",
+            gap: "2rem",
+            height: "160px",
           }}
         >
-          <MapContainer
-            center={center}
-            zoom={5}
-            style={{ height: "100%", width: "100%" }}
-          >
-            <TileLayer url={baseTile} />
-
-            {overlayTile && typeof overlayTile === "string" && (
-              <TileLayer url={overlayTile} opacity={opacity} />
-            )}
-          </MapContainer>
-
-          {/* ================= OPACITY SWIPE ================= */}
-          {overlayTile && (
-            <div
-              style={{
-                position: "absolute",
-                bottom: "12px",
-                left: "50%",
-                transform: "translateX(-50%)",
-                width: "80%",
-                background: "rgba(0,0,0,0.6)",
-                padding: "0.75rem",
-                borderRadius: "12px",
-              }}
-            >
-              <input
-                type="range"
-                min={0}
-                max={1}
-                step={0.01}
-                value={opacity}
-                onChange={(e) => setOpacity(Number(e.target.value))}
-                style={{ width: "100%" }}
-              />
-              <div
-                style={{
-                  color: "#fff",
-                  textAlign: "center",
-                  fontSize: "0.85rem",
-                  marginTop: "0.25rem",
-                }}
-              >
-                Past ↔ Present Opacity
-              </div>
-            </div>
-          )}
+          <Bar
+            label="Gain"
+            value={gain}
+            max={maxBar}
+            color="#27ae60"
+          />
+          <Bar
+            label="Loss"
+            value={loss}
+            max={maxBar}
+            color="#c0392b"
+          />
         </div>
-      )}
 
-      {/* ================= HISTOGRAM ================= */}
-      {Array.isArray(histogram) && histogram.length > 0 && (
-        <div style={{ marginTop: "1rem" }}>
+        <div style={{ marginTop: "0.5rem", fontSize: "0.85rem", color: "#555" }}>
+          Values shown in hectares (ha)
+        </div>
+      </div>
+
+      {/* ================= NDVI HISTOGRAM ================= */}
+      {histogram.length > 0 && (
+        <div>
           <h4 style={{ marginBottom: "0.5rem" }}>📊 NDVI Distribution</h4>
+
           <div
             style={{
               display: "flex",
@@ -216,6 +131,7 @@ export default function ResultsPanel({ result }: { result: any }) {
             {histogram.map((bin: any, i: number) => (
               <div
                 key={i}
+                title={`NDVI ≈ ${bin.mean?.toFixed(2)}`}
                 style={{
                   width: "12px",
                   height: `${Math.max(2, bin.count / 10)}px`,
@@ -226,16 +142,60 @@ export default function ResultsPanel({ result }: { result: any }) {
                       ? "#f1c40f"
                       : "#c0392b",
                 }}
-                title={`NDVI ~ ${bin.mean?.toFixed(2)}`}
               />
             ))}
           </div>
-          <div style={{ fontSize: "0.75rem", color: "#555", marginTop: "0.25rem" }}>
+
+          <div
+            style={{
+              fontSize: "0.75rem",
+              color: "#555",
+              marginTop: "0.25rem",
+            }}
+          >
             Red = Low NDVI | Yellow = Medium | Green = High
           </div>
         </div>
       )}
     </section>
+  );
+}
+
+/* =========================================================
+   BAR COMPONENT
+========================================================= */
+function Bar({
+  label,
+  value,
+  max,
+  color,
+}: {
+  label: string;
+  value: number;
+  max: number;
+  color: string;
+}) {
+  const heightPercent = useMemo(
+    () => Math.round((value / max) * 100),
+    [value, max]
+  );
+
+  return (
+    <div style={{ textAlign: "center" }}>
+      <div
+        style={{
+          width: "60px",
+          height: `${heightPercent}%`,
+          background: color,
+          borderRadius: "6px 6px 0 0",
+          transition: "height 0.4s ease",
+        }}
+      />
+      <div style={{ marginTop: "0.5rem", fontWeight: 600 }}>{label}</div>
+      <div style={{ fontSize: "0.8rem", color: "#555" }}>
+        {value.toFixed(2)} ha
+      </div>
+    </div>
   );
 }
 

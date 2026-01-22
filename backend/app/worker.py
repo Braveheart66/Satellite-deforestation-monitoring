@@ -61,13 +61,7 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
             "change_ha": round(present_ha - past_ha, 2),
             "deforestation_rate_pct_per_year": rate
         }
-
-        result["ndvi_tiles"] = {
-            "past": past_tile,
-            "present": present_tile,
-            "diff": diff_tile
-        }
-
+        
         result["ndvi_histogram"] = present_hist
 
         if "drone_image_path" in payload:

@@ -9,7 +9,7 @@ import threading
 from app.worker import run_ndvi_job
 from app.schemas import NDVIRequest
 from app.ee_client import init_ee
-from app.tiles import router as tiles_router
+
 
 # ================================
 # CREATE FASTAPI APP
@@ -50,10 +50,6 @@ def init_ee_background():
 def startup():
     threading.Thread(target=init_ee_background, daemon=True).start()
 
-# ================================
-# ROUTERS
-# ================================
-app.include_router(tiles_router)
 
 # ================================
 # HEALTH CHECK

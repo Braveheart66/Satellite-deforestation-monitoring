@@ -1,18 +1,10 @@
-from fastapi import APIRouter
-import requests
+from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
 
-@router.get("/tiles/{mapid}/{z}/{x}/{y}")
-def get_ee_tile(mapid: str, z: int, x: int, y: int, token: str):
-    url = (
-        f"https://earthengine.googleapis.com/map/{mapid}/{z}/{x}/{y}"
-        f"?token={token}"
-    )
-
-    response = requests.get(url, stream=True)
-
-    return Response(
-        content=response.content,
-        media_type="image/png"
+@router.get("/tiles/{path:path}")
+def tiles_disabled(path: str):
+    raise HTTPException(
+        status_code=410,
+        detail="Tile rendering has been disabled. Use numeric visualizations instead."
     )
