@@ -3,44 +3,50 @@ from typing import List
 
 
 def compute_satellite_ndvi(
-    aoi_coords: List[List[List[float]]],
-    start_date: str,
-    end_date: str,
-    threshold: float = 0.4,
-    collection: str = "COPERNICUS/S2_SR"
-) -> ee.Number:
-
+    aoi_coords,
+    start_date,
+    end_date,
+    threshold=0.4,
+    collection="COPERNICUS/S2_SR_HARMONIZED"
+):
     geometry = ee.Geometry.Polygon(aoi_coords)
 
     if "COPERNICUS/S2" in collection:
-        nir, red = "B8", "B4"
-        cloud = "CLOUDY_PIXEL_PERCENTAGE"
+        nir_band = "B8"
+        red_band = "B4"
+        cloud_property = "CLOUDY_PIXEL_PERCENTAGE"
         scale = 10
     else:
-        nir, red = "SR_B5", "SR_B4"
-        cloud = "CLOUD_COVER"
+        nir_band = "SR_B5"
+        red_band = "SR_B4"
+        cloud_property = "CLOUD_COVER"
         scale = 30
 
-    images = (
+    img_collection = (
         ee.ImageCollection(collection)
         .filterBounds(geometry)
         .filterDate(start_date, end_date)
-        .filter(ee.Filter.lt(cloud, 40))
+        .filter(ee.Filter.lt(cloud_property, 40))
+        .select([nir_band, red_band])   # 🔥 CRITICAL FIX
     )
 
-    if images.size().getInfo() == 0:
+    if img_collection.size().getInfo() == 0:
         return ee.Number(0)
 
-    ndvi = images.median().normalizedDifference([nir, red])
+    median_image = img_collection.median()
+
+    ndvi = median_image.normalizedDifference([nir_band, red_band]).rename("NDVI")
 
     vegetation = ndvi.gt(threshold)
-    area = vegetation.multiply(ee.Image.pixelArea())
 
-    stats = area.reduceRegion(
+    area_image = vegetation.multiply(ee.Image.pixelArea())
+
+    area_stats = area_image.reduceRegion(
         reducer=ee.Reducer.sum(),
         geometry=geometry,
         scale=scale,
-        maxPixels=1e13
+        maxPixels=1e13,
+        bestEffort=True
     )
 
-    return ee.Number(stats.get("NDVI", 0))
+    return ee.Number(area_stats.get("NDVI", 0))

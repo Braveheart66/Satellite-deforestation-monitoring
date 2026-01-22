@@ -1,3 +1,5 @@
+"use client";
+import MapAOI from "../components/MapAOI";
 import { useState, useEffect } from "react";
 
 export default function DeforestationMonitor() {
@@ -16,7 +18,8 @@ export default function DeforestationMonitor() {
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState("");
 
-  const API_BASE = "http://localhost:8000"; // Change for production
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE!;
+ // Change for production
 
   // ==========================================
   // HANDLE DRONE FILE UPLOAD
@@ -118,18 +121,13 @@ export default function DeforestationMonitor() {
   // ==========================================
   // MOCK AOI SELECTION (Replace with real map)
   // ==========================================
-  function selectMockAOI() {
-    // Example: Lucknow area polygon
-    setAOI([
-      [
-        [80.9, 26.8],
-        [81.0, 26.8],
-        [81.0, 26.9],
-        [80.9, 26.9],
-        [80.9, 26.8],
-      ],
-    ]);
-  }
+  <MapAOI onAOISelect={setAOI} />
+
+  {aoi && (
+    <div style={{ marginTop: "1rem", background: "#f0f9ff", padding: "1rem" }}>
+      ✅ AOI selected: {aoi[0].length} points
+    </div>
+  )}
 
   return (
     <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto", fontFamily: "system-ui" }}>
@@ -142,21 +140,27 @@ export default function DeforestationMonitor() {
           STEP 1: SELECT AREA
       ========================================== */}
       <section style={sectionStyle}>
-        <h2>Step 1: Select Area of Interest</h2>
-        <p style={{ color: "#666", fontSize: "0.9rem" }}>
-          Draw a polygon on the map (replace this with actual map component)
-        </p>
-        
-        <button onClick={selectMockAOI} style={buttonStyle}>
-          📍 Use Sample Area (Lucknow)
-        </button>
-        
-        {aoi && (
-          <div style={{ marginTop: "1rem", padding: "1rem", background: "#f0f9ff", borderRadius: "6px" }}>
-            ✅ Area selected: {aoi[0].length} coordinates
-          </div>
-        )}
-      </section>
+      <h2>Step 1: Select Area of Interest</h2>
+      <p style={{ color: "#666", fontSize: "0.9rem" }}>
+        Draw a polygon on the map to define the area of interest
+      </p>
+
+      {/* 👇 THIS WAS MISSING */}
+      <MapAOI onAOISelect={setAOI} />
+
+      {aoi && (
+        <div
+          style={{
+            marginTop: "1rem",
+            padding: "1rem",
+            background: "#f0f9ff",
+            borderRadius: "6px",
+          }}
+        >
+          ✅ Area selected: {aoi[0].length} coordinates
+        </div>
+      )}
+    </section>
 
       {/* ==========================================
           STEP 2: UPLOAD DRONE IMAGE

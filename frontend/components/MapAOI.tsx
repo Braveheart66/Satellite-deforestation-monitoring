@@ -1,9 +1,13 @@
-"use client";
-
 import dynamic from "next/dynamic";
 
 const MapAOIClient = dynamic(() => import("./MapAOIClient"), {
   ssr: false,
 });
 
-export default MapAOIClient;
+type Props = {
+  onAOISelect: (coords: number[][][]) => void;
+};
+
+export default function MapAOI(props: Props) {
+  return <MapAOIClient {...props} />;
+}
