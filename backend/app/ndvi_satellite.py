@@ -1,4 +1,5 @@
 import ee
+
 def compute_satellite_ndvi(
     aoi_coords,
     start_date,
@@ -22,9 +23,7 @@ def compute_satellite_ndvi(
     )
 
     if img_collection.size().getInfo() == 0:
-        if return_map:
-            return 0, None
-        return 0
+        return (0, None) if return_map else 0
 
     median_image = img_collection.median()
 
@@ -32,7 +31,6 @@ def compute_satellite_ndvi(
         [nir_band, red_band]
     ).rename("NDVI")
 
-    # ---- AREA COMPUTATION (UNCHANGED) ----
     vegetation = ndvi.gt(threshold)
     area_image = vegetation.multiply(ee.Image.pixelArea())
 
@@ -46,17 +44,21 @@ def compute_satellite_ndvi(
 
     area = ee.Number(area_stats.get("NDVI", 0))
 
-    # ---- MAP TILE EXPORT (NEW) ----
-    if return_map:
-        vis = {
-            "min": 0.0,
-            "max": 0.8,
-            "palette": ["brown", "yellow", "green"]
-        }
+    if not return_map:
+        return area
 
-        map_id = ndvi.getMapId(vis)
-        tile_url = map_id["tile_fetcher"].url_format
+    # -------------------------
+    # NDVI TILE METADATA
+    # -------------------------
+    vis = {
+        "min": 0.0,
+        "max": 0.8,
+        "palette": ["#8c510a", "#f6e8c3", "#01665e"]
+    }
 
-        return area, tile_url
+    map_id = ndvi.getMapId(vis)
 
-    return area
+    return area, {
+        "mapid": map_id["mapid"],
+        "token": map_id["token"]
+    }

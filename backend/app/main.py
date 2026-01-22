@@ -9,6 +9,10 @@ from app.worker import run_ndvi_job
 from app.schemas import NDVIRequest
 from app.ee_client import init_ee
 import threading
+from app.tiles import router as tiles_router
+
+app.include_router(tiles_router)
+
 
 JOB_STORE: Dict[str, dict] = {}
 UPLOAD_DIR = Path("data/uploads")

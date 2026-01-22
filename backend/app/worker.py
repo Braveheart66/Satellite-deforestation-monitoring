@@ -17,9 +17,9 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
         past_year = payload["past_year"]
         present_year = payload["present_year"]
 
-        # -----------------------------
-        # SATELLITE NDVI (SQUARE METERS)
-        # -----------------------------
+        # --------------------------------------------------
+        # SATELLITE NDVI (AREA + TILE MAPS)
+        # --------------------------------------------------
         past_sqm, past_tile = compute_satellite_ndvi(
             geometry,
             f"{past_year}-01-01",
@@ -37,12 +37,6 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
         past_sqm = ee.Number(past_sqm).getInfo() or 0
         present_sqm = ee.Number(present_sqm).getInfo() or 0
 
-
-        # SAFETY GUARD
-        past_sqm = past_sqm or 0
-        present_sqm = present_sqm or 0
-
-        # Convert ONCE
         past_ha = past_sqm / 10000
         present_ha = present_sqm / 10000
 
@@ -52,9 +46,14 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
             present_year - past_year
         )
 
+        # --------------------------------------------------
+        # RESULT OBJECT (INITIALIZE ONCE)
+        # --------------------------------------------------
         result = {}
 
-        # ✅ ONLY suppress output if BOTH are zero
+        # --------------------------------------------------
+        # SATELLITE COMPARISON
+        # --------------------------------------------------
         if past_ha == 0 and present_ha == 0:
             result["satellite_comparison"] = None
         else:
@@ -67,25 +66,31 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
                 "deforestation_rate_pct_per_year": satellite_rate
             }
 
-        # -----------------------------
+        # --------------------------------------------------
+        # NDVI TILE MAPS (FOR FRONTEND VISUALIZATION)
+        # --------------------------------------------------
+        result["ndvi_tiles"] = {
+            "past": past_tile,
+            "present": present_tile,
+            # diff will be added once you compute ΔNDVI in ndvi_satellite.py
+        }
+
+        # --------------------------------------------------
         # DRONE DATA (OPTIONAL)
-        # -----------------------------
+        # --------------------------------------------------
         if "drone_image_path" in payload:
             aoi = {
                 "type": "Polygon",
                 "coordinates": geometry
             }
-
             result["drone_data"] = process_drone_data_for_comparison(
                 payload["drone_image_path"],
                 aoi
             )
-            
-        result["ndvi_tiles"] = {
-            "past": past_tile,
-            "present": present_tile
-        }
 
+        # --------------------------------------------------
+        # JOB FINALIZE
+        # --------------------------------------------------
         job_store[job_id]["status"] = "completed"
         job_store[job_id]["result"] = result
 

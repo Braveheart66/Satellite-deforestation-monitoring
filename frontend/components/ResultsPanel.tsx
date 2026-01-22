@@ -1,11 +1,11 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useMemo, useState } from "react";
+import { useState, useMemo } from "react";
 import "leaflet/dist/leaflet.css";
 
 /* =========================================================
-   DYNAMIC IMPORTS (SSR SAFE)
+   DYNAMIC LEAFLET IMPORT (NO SSR)
 ========================================================= */
 const MapContainer = dynamic(
   () => import("react-leaflet").then((m) => m.MapContainer),
@@ -17,189 +17,175 @@ const TileLayer = dynamic(
   { ssr: false }
 );
 
-const GeoJSON = dynamic(
-  () => import("react-leaflet").then((m) => m.GeoJSON),
-  { ssr: false }
-);
-
 /* =========================================================
    RESULTS PANEL
 ========================================================= */
-export default function ResultsPanel({ result, aoi }: any) {
+export default function ResultsPanel({ result }: { result: any }) {
+  if (!result) return null;
 
-  /* =========================================================
-     STATE
-  ========================================================= */
-  const [slider, setSlider] = useState<number>(50);
-  const [mode, setMode] = useState<"ndvi" | "urban">("ndvi");
+  const tiles = result.ndvi_tiles || {};
+  const histogram = result.ndvi_histogram || null;
 
-  /* =========================================================
-     AOI GEOJSON
-  ========================================================= */
-  const aoiGeoJSON = useMemo(() => {
-    if (!aoi) return null;
-    return {
-      type: "Feature",
-      geometry: {
-        type: "Polygon",
-        coordinates: aoi,
-      },
-    };
-  }, [aoi]);
+  /* =======================================================
+     VIEW MODES
+  ======================================================= */
+  const [mode, setMode] = useState<"ndvi" | "diff">("ndvi");
+  const [opacity, setOpacity] = useState<number>(1);
 
-  /* =========================================================
-     MAP CENTER
-  ========================================================= */
-  const center = useMemo(() => {
-    if (!aoi || !aoi[0]?.length) return [0, 0];
-    const [lng, lat] = aoi[0][0];
-    return [lat, lng];
-  }, [aoi]);
+  /* =======================================================
+     STATIC MAP CENTER (NO REINIT)
+  ======================================================= */
+  const center = useMemo<[number, number]>(() => [0, 0], []);
 
-  /* =========================================================
-     NDVI TILE SOURCES (VISUAL)
-  ========================================================= */
-  const NDVI_PAST =
-  "https://tiles.maps.eox.at/wmts/1.0.0/sentinel2-ndvi-2016/default/g/{z}/{y}/{x}.jpg";
+  /* =======================================================
+     TILE SELECTION
+  ======================================================= */
+  const baseTile =
+    mode === "ndvi" ? tiles.present || null : tiles.diff || null;
 
-  const NDVI_PRESENT =
-  "https://tiles.maps.eox.at/wmts/1.0.0/sentinel2-ndvi-2024/default/g/{z}/{y}/{x}.jpg";
+  const overlayTile =
+    mode === "ndvi" ? tiles.past || null : null;
 
+  /* =======================================================
+     VEGETATION CLASSIFICATION
+  ======================================================= */
+  const change =
+    result.satellite_comparison?.change_ha ?? null;
 
-  const URBAN =
-    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+  let vegStatus = "Stable";
+  let vegColor = "#999";
 
-  /* =========================================================
+  if (change !== null) {
+    if (change > 0) {
+      vegStatus = "Vegetation Gain";
+      vegColor = "#27ae60";
+    } else if (change < 0) {
+      vegStatus = "Vegetation Loss";
+      vegColor = "#c0392b";
+    }
+  }
+
+  /* =======================================================
      RENDER
-  ========================================================= */
+  ======================================================= */
   return (
     <section
       style={{
         marginTop: "2rem",
         padding: "1.5rem",
-        background: "#f9fafb",
-        borderRadius: "8px",
+        borderRadius: "16px",
+        background: "#fff",
+        boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
       }}
     >
-      <h2>📊 Analysis Results</h2>
+      <h2 style={{ marginBottom: "1rem" }}>📊 Analysis Results</h2>
 
-      {/* ================= METRICS ================= */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "1rem",
-          marginBottom: "1.5rem",
-        }}
-      >
-        <Metric
-          label="Past Vegetation Cover"
-          value={`${result.satellite_comparison.past_cover_ha} ha`}
-          color="#27ae60"
-        />
-        <Metric
-          label="Present Vegetation Cover"
-          value={`${result.satellite_comparison.present_cover_ha} ha`}
-          color="#e67e22"
-        />
-      </div>
+      {/* ================= STATS ================= */}
+      {result.satellite_comparison && (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr 1fr",
+            gap: "1rem",
+            marginBottom: "1.5rem",
+          }}
+        >
+          <StatBox
+            label={`Past (${result.satellite_comparison.past_year})`}
+            value={`${result.satellite_comparison.past_cover_ha} ha`}
+            color="#27ae60"
+          />
+          <StatBox
+            label={`Present (${result.satellite_comparison.present_year})`}
+            value={`${result.satellite_comparison.present_cover_ha} ha`}
+            color="#e67e22"
+          />
+          <StatBox
+            label="Vegetation Trend"
+            value={vegStatus}
+            color={vegColor}
+          />
+        </div>
+      )}
 
-      {/* ================= MODE TOGGLE ================= */}
-      <div style={{ marginBottom: "0.75rem" }}>
-        <button onClick={() => setMode("ndvi")}>🌿 NDVI Mode</button>{" "}
-        <button onClick={() => setMode("urban")}>🏙️ Urban Mode</button>
+      {/* ================= MODE CONTROLS ================= */}
+      <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1rem" }}>
+        <button onClick={() => setMode("ndvi")}>🌿 NDVI</button>
+        <button onClick={() => setMode("diff")}>🔥 ΔNDVI</button>
       </div>
 
       {/* ================= MAP ================= */}
-      <div
-        style={{
-          height: "460px",
-          borderRadius: "12px",
-          overflow: "hidden",
-          position: "relative",
-        }}
-      >
-        <MapContainer
-          key={`${mode}-${result?.satellite_comparison?.past_cover_ha}-${result?.satellite_comparison?.present_cover_ha}`}
-          center={center}
-          zoom={12}
-          style={{ height: "100%", width: "100%" }}
+      {baseTile && (
+        <div
+          style={{
+            position: "relative",
+            height: "420px",
+            borderRadius: "14px",
+            overflow: "hidden",
+          }}
         >
-          {/* BASE LAYER */}
-          <TileLayer url={URBAN} />
-
-          {/* NDVI PAST */}
-          {mode === "ndvi" && (
-            <TileLayer
-              url={NDVI_PAST}
-              opacity={slider / 100}
-            />
-          )}
-
-          {/* NDVI PRESENT */}
-          {mode === "ndvi" && (
-            <TileLayer
-              url={NDVI_PRESENT}
-              opacity={(100 - slider) / 100}
-            />
-          )}
-
-          {/* AOI */}
-          {aoiGeoJSON && (
-            <GeoJSON
-              data={aoiGeoJSON}
-              style={{
-                color: "#00ff88",
-                weight: 2,
-                fillOpacity: 0.15,
-              }}
-            />
-          )}
-        </MapContainer>
-
-        {/* ================= SLIDER ================= */}
-        {mode === "ndvi" && (
-          <div
-            style={{
-              position: "absolute",
-              bottom: "12px",
-              left: "50%",
-              transform: "translateX(-50%)",
-              width: "80%",
-              background: "rgba(0,0,0,0.65)",
-              padding: "0.75rem 1rem",
-              borderRadius: "10px",
-              backdropFilter: "blur(10px)",
-            }}
+          <MapContainer
+            center={center}
+            zoom={5}
+            style={{ height: "100%", width: "100%" }}
           >
-            <input
-              type="range"
-              min={0}
-              max={100}
-              value={slider}
-              onChange={(e) => setSlider(Number(e.target.value))}
-              style={{ width: "100%" }}
-            />
+            <TileLayer url={baseTile} />
+
+            {overlayTile && (
+              <TileLayer
+                url={overlayTile}
+                opacity={opacity}
+              />
+            )}
+          </MapContainer>
+
+          {/* ================= OPACITY SWIPE ================= */}
+          {overlayTile && (
             <div
               style={{
-                textAlign: "center",
-                marginTop: "0.4rem",
-                fontSize: "0.85rem",
-                color: "#fff",
+                position: "absolute",
+                bottom: "12px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: "80%",
+                background: "rgba(0,0,0,0.6)",
+                padding: "0.75rem",
+                borderRadius: "12px",
               }}
             >
-              Past ⟷ Present NDVI
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.01}
+                value={opacity}
+                onChange={(e) => setOpacity(Number(e.target.value))}
+                style={{ width: "100%" }}
+              />
+              <div style={{ color: "#fff", textAlign: "center", fontSize: "0.85rem" }}>
+                Past ↔ Present Opacity
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
-      {/* ================= LEGEND ================= */}
-      {mode === "ndvi" && (
-        <div style={{ marginTop: "1rem", fontSize: "0.85rem" }}>
-          <strong>NDVI Legend:</strong>{" "}
-          <span style={{ color: "#7f0000" }}>Low</span> →{" "}
-          <span style={{ color: "#00ff00" }}>High</span>
+      {/* ================= HISTOGRAM ================= */}
+      {histogram && (
+        <div style={{ marginTop: "1.5rem" }}>
+          <h4>📊 NDVI Distribution</h4>
+          <div style={{ display: "flex", gap: "4px", alignItems: "flex-end" }}>
+            {histogram.map((bin: any, i: number) => (
+              <div
+                key={i}
+                style={{
+                  height: `${bin.count}px`,
+                  width: "10px",
+                  background: "#2ecc71",
+                }}
+              />
+            ))}
+          </div>
         </div>
       )}
     </section>
@@ -207,22 +193,28 @@ export default function ResultsPanel({ result, aoi }: any) {
 }
 
 /* =========================================================
-   METRIC
+   STAT BOX
 ========================================================= */
-function Metric({ label, value, color }: any) {
+function StatBox({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: string;
+  color: string;
+}) {
   return (
     <div
       style={{
         padding: "1rem",
-        background: "#fff",
-        borderRadius: "6px",
+        borderRadius: "12px",
+        background: "#f9f9f9",
         border: "1px solid #ddd",
       }}
     >
-      <div style={{ fontSize: "0.85rem", color: "#666" }}>
-        {label}
-      </div>
-      <div style={{ fontSize: "1.6rem", fontWeight: 700, color }}>
+      <div style={{ fontSize: "0.8rem", color: "#555" }}>{label}</div>
+      <div style={{ fontSize: "1.4rem", fontWeight: 700, color }}>
         {value}
       </div>
     </div>
