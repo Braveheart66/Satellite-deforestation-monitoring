@@ -12,13 +12,15 @@ def calculate_deforestation_rate(past, present, years):
 
 
 def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
-
     try:
         geometry = payload["geometry"]["coordinates"]
         past_year = payload["past_year"]
         present_year = payload["present_year"]
 
-        past = ee.Number(
+        # -----------------------------
+        # SATELLITE NDVI (SQUARE METERS)
+        # -----------------------------
+        past_sqm = ee.Number(
             compute_satellite_ndvi(
                 geometry,
                 f"{past_year}-01-01",
@@ -26,7 +28,7 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
             )
         ).getInfo()
 
-        present = ee.Number(
+        present_sqm = ee.Number(
             compute_satellite_ndvi(
                 geometry,
                 f"{present_year}-01-01",
@@ -34,8 +36,13 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
             )
         ).getInfo()
 
-        past_ha = past / 10000
-        present_ha = present / 10000
+        # SAFETY GUARD
+        past_sqm = past_sqm or 0
+        present_sqm = present_sqm or 0
+
+        # Convert ONCE
+        past_ha = past_sqm / 10000
+        present_ha = present_sqm / 10000
 
         satellite_rate = calculate_deforestation_rate(
             past_ha,
@@ -43,26 +50,34 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
             present_year - past_year
         )
 
-        result = {
-            "satellite_comparison": {
+        result = {}
+
+        # ✅ ONLY suppress output if BOTH are zero
+        if past_ha == 0 and present_ha == 0:
+            result["satellite_comparison"] = None
+        else:
+            result["satellite_comparison"] = {
+                "past_year": past_year,
                 "past_cover_ha": round(past_ha, 2),
+                "present_year": present_year,
                 "present_cover_ha": round(present_ha, 2),
+                "change_ha": round(present_ha - past_ha, 2),
                 "deforestation_rate_pct_per_year": satellite_rate
             }
-        }
 
+        # -----------------------------
+        # DRONE DATA (OPTIONAL)
+        # -----------------------------
         if "drone_image_path" in payload:
             aoi = {
                 "type": "Polygon",
                 "coordinates": geometry
             }
 
-            drone = process_drone_data_for_comparison(
+            result["drone_data"] = process_drone_data_for_comparison(
                 payload["drone_image_path"],
                 aoi
             )
-
-            result["drone_data"] = drone
 
         job_store[job_id]["status"] = "completed"
         job_store[job_id]["result"] = result
