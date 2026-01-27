@@ -5,8 +5,14 @@ import { useMemo } from "react";
 /* =========================================================
    RESULTS PANEL — NO MAPS, NO TILES
 ========================================================= */
-export default function ResultsPanel({ result }: { result: any }) {
+type ResultsPanelProps = {
+  result: any;
+  aoi: number[][][];
+};
+
+export default function ResultsPanel({ result, aoi }: ResultsPanelProps) {
   if (!result || !result.satellite_comparison) return null;
+
 
   const {
     past_year,
