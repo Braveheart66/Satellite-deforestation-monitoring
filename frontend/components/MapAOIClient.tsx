@@ -5,10 +5,14 @@ import { EditControl } from "react-leaflet-draw";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import L from "leaflet";
+import { LatLngExpression } from "leaflet";
 
 type Props = {
   onAOISelect: (coords: number[][][]) => void;
 };
+
+/* ✅ MUST be at component scope */
+const mapCenter: LatLngExpression = [26.9124, 75.7873];
 
 export default function MapAOIClient({ onAOISelect }: Props) {
   const handleCreated = (e: any) => {
@@ -24,7 +28,7 @@ export default function MapAOIClient({ onAOISelect }: Props) {
 
   return (
     <MapContainer
-      center={[26.9124, 75.7873]}
+      center={mapCenter}
       zoom={11}
       style={{
         height: "420px",
@@ -33,7 +37,6 @@ export default function MapAOIClient({ onAOISelect }: Props) {
         overflow: "hidden",
       }}
     >
-      {/* PURE BASE MAP — NO EE */}
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution="© OpenStreetMap contributors"
