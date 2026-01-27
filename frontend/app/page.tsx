@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import MapAOI from "../components/MapAOI";
-import ResultsPanel from "../components/ResultsPanel";
+import ResultsPanel from "@/components/ResultsPanel";
+
 
 /* =========================================================
    MAIN PAGE COMPONENT
