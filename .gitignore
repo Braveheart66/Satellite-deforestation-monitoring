@@ -1,0 +1,16 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+.env
+
+# Secrets
+ee-key.json
+.env.example
+
+# Node
+node_modules/
+.next/
+
+# OS
+.DS_Store
