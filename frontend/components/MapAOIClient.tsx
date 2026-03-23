@@ -1,12 +1,32 @@
 "use client";
 
-import { MapContainer, TileLayer, FeatureGroup } from "react-leaflet";
-import { EditControl } from "react-leaflet-draw";
+import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import L from "leaflet";
 import { LatLngExpression } from "leaflet";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+
+// Dynamically import map components to disable SSR
+const MapContainer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.MapContainer),
+  { ssr: false }
+);
+
+const TileLayer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.TileLayer),
+  { ssr: false }
+);
+
+const FeatureGroup = dynamic(
+  () => import("react-leaflet").then((mod) => mod.FeatureGroup),
+  { ssr: false }
+);
+
+const EditControl = dynamic(
+  () => import("react-leaflet-draw").then((mod) => mod.EditControl),
+  { ssr: false }
+);
 
 type Props = {
   onAOISelect: (coords: number[][][]) => void;
@@ -16,6 +36,8 @@ type Props = {
 const mapCenter: LatLngExpression = [26.9124, 75.7873];
 
 export default function MapAOIClient({ onAOISelect }: Props) {
+  const [isReady, setIsReady] = useState(false);
+
   // Fix Leaflet icon URLs for Next.js/production
   useEffect(() => {
     // @ts-ignore
@@ -28,6 +50,7 @@ export default function MapAOIClient({ onAOISelect }: Props) {
       shadowUrl:
         "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
     });
+    setIsReady(true);
   }, []);
 
   const handleCreated = (e: any) => {
@@ -40,6 +63,8 @@ export default function MapAOIClient({ onAOISelect }: Props) {
 
     onAOISelect(coordinates);
   };
+
+  if (!isReady) return null;
 
   return (
     <MapContainer
