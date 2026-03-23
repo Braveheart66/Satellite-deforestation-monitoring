@@ -1,22 +1,11 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import "leaflet/dist/leaflet.css";
+import { LatLngExpression } from "leaflet";
+import { useEffect, useState } from "react";
 
-const MapContainer = dynamic(
-  () => import("react-leaflet").then((mod) => mod.MapContainer),
-  { ssr: false }
-);
-
-const TileLayer = dynamic(
-  () => import("react-leaflet").then((mod) => mod.TileLayer),
-  { ssr: false }
-);
-
-const GeoJSON = dynamic(
-  () => import("react-leaflet").then((mod) => mod.GeoJSON),
-  { ssr: false }
-);
+let MapContainerComponent: any = null;
+let TileLayerComponent: any = null;
+let GeoJSONComponent: any = null;
 
 type Props = {
   aoi: number[][][];
@@ -24,6 +13,71 @@ type Props = {
 };
 
 export default function NDVIDiffMap({ aoi, tileUrl }: Props) {
+  const [isReady, setIsReady] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const initializeComponents = async () => {
+      try {
+        const { MapContainer: MC, TileLayer: TL, GeoJSON: GJ } =
+          await import("react-leaflet");
+        MapContainerComponent = MC;
+        TileLayerComponent = TL;
+        GeoJSONComponent = GJ;
+
+        // Import Leaflet
+        await import("leaflet");
+        if (typeof window !== "undefined") {
+          require("leaflet/dist/leaflet.css");
+        }
+
+        setIsReady(true);
+      } catch (error) {
+        console.error("NDVI map initialization failed:", error);
+        setHasError(true);
+      }
+    };
+
+    initializeComponents();
+  }, []);
+
+  if (hasError) {
+    return (
+      <div
+        style={{
+          marginTop: "2rem",
+          padding: "2rem",
+          background: "#fee",
+          borderRadius: "12px",
+          color: "#c33",
+        }}
+      >
+        <h3>🗺️ NDVI Difference Map (Present − Past)</h3>
+        <p>⚠️ Map failed to load</p>
+      </div>
+    );
+  }
+
+  if (!isReady || !MapContainerComponent || !TileLayerComponent || !GeoJSONComponent) {
+    return (
+      <div
+        style={{
+          marginTop: "2rem",
+          height: "420px",
+          background: "#f0f0f0",
+          borderRadius: "12px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <p>Loading map...</p>
+      </div>
+    );
+  }
+
   const center = [
     aoi[0][0][1], // lat
     aoi[0][0][0], // lng
@@ -43,7 +97,7 @@ export default function NDVIDiffMap({ aoi, tileUrl }: Props) {
         🗺️ NDVI Difference Map (Present − Past)
       </h3>
 
-      <MapContainer
+      <MapContainerComponent
         center={center}
         zoom={12}
         style={{
@@ -53,18 +107,18 @@ export default function NDVIDiffMap({ aoi, tileUrl }: Props) {
         }}
       >
         {/* Base Map */}
-        <TileLayer
+        <TileLayerComponent
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
         {/* NDVI Difference Layer */}
-        <TileLayer
+        <TileLayerComponent
           url={tileUrl}
           opacity={0.75}
         />
 
         {/* AOI Outline */}
-        <GeoJSON
+        <GeoJSONComponent
           data={geojsonAOI as any}
           style={{
             color: "#000",
@@ -72,7 +126,7 @@ export default function NDVIDiffMap({ aoi, tileUrl }: Props) {
             fillOpacity: 0,
           }}
         />
-      </MapContainer>
+      </MapContainerComponent>
 
       {/* Legend */}
       <div

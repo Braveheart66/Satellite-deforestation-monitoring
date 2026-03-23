@@ -1,20 +1,13 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import "leaflet/dist/leaflet.css";
 import { LatLngExpression } from "leaflet";
 import { useEffect, useRef, useState } from "react";
 
-// Dynamically import map components to disable SSR
-const MapContainer = dynamic(
-  () => import("react-leaflet").then((mod) => mod.MapContainer),
-  { ssr: false }
-);
+// Don't import react-leaflet at module level - causes SSR issues
+// Import them lazily inside useEffect
 
-const TileLayer = dynamic(
-  () => import("react-leaflet").then((mod) => mod.TileLayer),
-  { ssr: false }
-);
+let MapContainerComponent: any = null;
+let TileLayerComponent: any = null;
 
 type Props = {
   onAOISelect: (coords: number[][][]) => void;
@@ -26,13 +19,26 @@ export default function MapAOIClient({ onAOISelect }: Props) {
   const mapRef = useRef<any>(null);
   const [isReady, setIsReady] = useState(false);
   const [geoJsonInput, setGeoJsonInput] = useState("");
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const initializeMap = async () => {
+    const initializeComponents = async () => {
       try {
+        // Import react-leaflet components
+        const { MapContainer: MC, TileLayer: TL } =
+          await import("react-leaflet");
+        MapContainerComponent = MC;
+        TileLayerComponent = TL;
+
+        // Import and configure Leaflet
         const L = (await import("leaflet")).default;
+
+        // Ensure CSS is loaded
+        if (typeof window !== "undefined") {
+          require("leaflet/dist/leaflet.css");
+        }
 
         // Fix Leaflet icon URLs
         // @ts-ignore
@@ -48,11 +54,12 @@ export default function MapAOIClient({ onAOISelect }: Props) {
 
         setIsReady(true);
       } catch (error) {
-        console.error("Map initialization error:", error);
+        console.error("Map initialization failed:", error);
+        setHasError(true);
       }
     };
 
-    initializeMap();
+    initializeComponents();
   }, []);
 
   const handleGeoJsonUpload = async () => {
@@ -98,11 +105,44 @@ export default function MapAOIClient({ onAOISelect }: Props) {
     }
   };
 
-  if (!isReady) return <div style={{ height: "420px", background: "#f0f0f0" }} />;
+  if (hasError) {
+    return (
+      <div
+        style={{
+          height: "420px",
+          background: "#fee",
+          borderRadius: "14px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "#c33",
+        }}
+      >
+        <p>⚠️ Map failed to load. Please refresh the page.</p>
+      </div>
+    );
+  }
+
+  if (!isReady || !MapContainerComponent || !TileLayerComponent) {
+    return (
+      <div
+        style={{
+          height: "420px",
+          background: "#f0f0f0",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: "14px",
+        }}
+      >
+        <p>🗺️ Loading map...</p>
+      </div>
+    );
+  }
 
   return (
     <div>
-      <MapContainer
+      <MapContainerComponent
         center={mapCenter}
         zoom={11}
         style={{
@@ -112,17 +152,17 @@ export default function MapAOIClient({ onAOISelect }: Props) {
           overflow: "hidden",
           marginBottom: "12px",
         }}
-        ref={(mapInstance) => {
+        ref={(mapInstance: any) => {
           if (mapInstance) {
             mapRef.current = mapInstance;
           }
         }}
       >
-        <TileLayer
+        <TileLayerComponent
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="© OpenStreetMap contributors"
         />
-      </MapContainer>
+      </MapContainerComponent>
 
       <div style={{ marginTop: "12px" }}>
         <textarea
