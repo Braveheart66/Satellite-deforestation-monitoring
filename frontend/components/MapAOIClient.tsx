@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
-import "leaflet-draw/dist/leaflet.draw.css";
 import { LatLngExpression } from "leaflet";
 import { useEffect, useRef, useState } from "react";
 
@@ -21,23 +20,19 @@ type Props = {
   onAOISelect: (coords: number[][][]) => void;
 };
 
-/* ✅ MUST be at component scope */
 const mapCenter: LatLngExpression = [26.9124, 75.7873];
 
 export default function MapAOIClient({ onAOISelect }: Props) {
   const mapRef = useRef<any>(null);
   const [isReady, setIsReady] = useState(false);
+  const [geoJsonInput, setGeoJsonInput] = useState("");
 
   useEffect(() => {
-    // Only run on client after component mounts
     if (typeof window === "undefined") return;
 
     const initializeMap = async () => {
       try {
         const L = (await import("leaflet")).default;
-        // Import leaflet-draw to load CSS and initialize L.Control.Draw
-        // @ts-ignore
-        await import("leaflet-draw");
 
         // Fix Leaflet icon URLs
         // @ts-ignore
@@ -60,82 +55,106 @@ export default function MapAOIClient({ onAOISelect }: Props) {
     initializeMap();
   }, []);
 
-  const handleMapCreated = (container: HTMLDivElement) => {
-    if (!isReady || !container) return;
+  const handleGeoJsonUpload = async () => {
+    if (!geoJsonInput.trim() || !mapRef.current) return;
 
-    // Dynamically import and initialize everything after render
-    setTimeout(() => {
-      const initDrawing = async () => {
-        try {
-          const L = (await import("leaflet")).default;
+    try {
+      const L = (await import("leaflet")).default;
+      const geoJson = JSON.parse(geoJsonInput);
+      const map = mapRef.current as any;
 
-          if (!mapRef.current) return;
-
-          // Add Leaflet Draw to the map
-          const map = mapRef.current as any;
-          const drawnItems = new L.FeatureGroup();
-          map.addLayer(drawnItems);
-
-          // @ts-ignore
-          const drawControl = new L.Control.Draw({
-            draw: {
-              rectangle: false,
-              circle: false,
-              circlemarker: false,
-              marker: false,
-              polyline: false,
-              polygon: true,
-            },
-            edit: {
-              featureGroup: drawnItems,
-            },
-          });
-          map.addControl(drawControl);
-
-          map.on("draw:created", (e: any) => {
-            const layer = e.layer;
-            if (layer.getLatLngs) {
-              const latLngs = layer.getLatLngs()[0];
-              const coordinates = [
-                latLngs.map((p: any) => [p.lng, p.lat]),
-              ];
-              onAOISelect(coordinates);
-            }
-          });
-        } catch (error) {
-          console.error("Drawing initialization error:", error);
+      // Remove existing layers
+      map.eachLayer((layer: any) => {
+        if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
+          map.removeLayer(layer);
         }
-      };
-      initDrawing();
-    }, 100);
+      });
+
+      // Handle both Feature and FeatureCollection
+      const features =
+        geoJson.type === "FeatureCollection"
+          ? geoJson.features
+          : [{ geometry: geoJson }];
+
+      features.forEach((feature: any) => {
+        const geom = feature.geometry || feature;
+        if (geom.type === "Polygon") {
+          const polygon = L.polygon(
+            geom.coordinates[0].map((coord: any) => [coord[1], coord[0]])
+          );
+          polygon.addTo(map);
+
+          // Send to parent
+          const coords = [geom.coordinates];
+          onAOISelect(coords);
+
+          // Fit map bounds
+          map.fitBounds(polygon.getBounds());
+        }
+      });
+    } catch (error) {
+      console.error("Error parsing GeoJSON:", error);
+      alert("Invalid GeoJSON format. Please check your input.");
+    }
   };
 
   if (!isReady) return <div style={{ height: "420px", background: "#f0f0f0" }} />;
 
   return (
-    <MapContainer
-      center={mapCenter}
-      zoom={11}
-      style={{
-        height: "420px",
-        width: "100%",
-        borderRadius: "14px",
-        overflow: "hidden",
-      }}
-      ref={(mapInstance) => {
-        if (mapInstance) {
-          mapRef.current = mapInstance;
-          const container = mapInstance.getContainer?.();
-          if (container) {
-            handleMapCreated(container as HTMLDivElement);
+    <div>
+      <MapContainer
+        center={mapCenter}
+        zoom={11}
+        style={{
+          height: "420px",
+          width: "100%",
+          borderRadius: "14px",
+          overflow: "hidden",
+          marginBottom: "12px",
+        }}
+        ref={(mapInstance) => {
+          if (mapInstance) {
+            mapRef.current = mapInstance;
           }
-        }
-      }}
-    >
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution="© OpenStreetMap contributors"
-      />
-    </MapContainer>
+        }}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution="© OpenStreetMap contributors"
+        />
+      </MapContainer>
+
+      <div style={{ marginTop: "12px" }}>
+        <textarea
+          placeholder='Paste GeoJSON polygon here (e.g., {"type":"Polygon","coordinates":[[[lng,lat],...]]}'
+          value={geoJsonInput}
+          onChange={(e) => setGeoJsonInput(e.target.value)}
+          style={{
+            width: "100%",
+            height: "80px",
+            padding: "8px",
+            fontFamily: "monospace",
+            fontSize: "12px",
+            borderRadius: "6px",
+            border: "1px solid #ccc",
+            boxSizing: "border-box",
+          }}
+        />
+        <button
+          onClick={handleGeoJsonUpload}
+          style={{
+            marginTop: "8px",
+            padding: "8px 16px",
+            backgroundColor: "#4CAF50",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          Load Polygon
+        </button>
+      </div>
+    </div>
   );
 }
