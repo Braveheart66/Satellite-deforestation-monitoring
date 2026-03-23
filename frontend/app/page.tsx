@@ -1,13 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MapAOI from "../components/MapAOI";
 import ResultsPanel from "@/components/ResultsPanel";
 
-/* =========================================================
-   MAIN PAGE COMPONENT
-========================================================= */
 export default function DeforestationMonitor() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // Ensure we only render after hydration
+    setMounted(true);
+  }, []);
   /* =========================================================
      STATE: AOI SELECTION
   ========================================================= */
@@ -153,6 +156,14 @@ export default function DeforestationMonitor() {
   /* =========================================================
      RENDER
   ========================================================= */
+  if (!mounted) {
+    return (
+      <div style={containerStyle}>
+        <h1>Loading application...</h1>
+      </div>
+    );
+  }
+
   return (
     <div style={containerStyle}>
       {/* ================= HEADER ================= */}
