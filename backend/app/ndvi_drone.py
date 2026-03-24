@@ -6,7 +6,7 @@ Processes high-resolution drone imagery and aligns it with satellite resolution
 import numpy as np
 import rasterio
 from rasterio.mask import mask
-from rasterio.warp import transform_geom
+from rasterio.warp import transform_geom, calculate_default_transform, reproject, Resampling
 from rasterio.transform import from_bounds
 from typing import Dict, Tuple
 import cv2
@@ -184,7 +184,49 @@ class DroneNDVIProcessor:
         crs = src_metadata["crs"]
 
         if not crs or not crs.is_projected:
-            raise ValueError("Drone raster must use a projected CRS")
+            # Reproject to a projected CRS (Web Mercator) for processing
+            target_crs = rasterio.crs.CRS.from_epsg(3857)
+            print(f"⚙️ Reprojecting drone NDVI from {crs} to {target_crs}")
+
+            # Determine source bounds from transform
+            height = src_metadata["height"]
+            width = src_metadata["width"]
+            left, bottom, right, top = rasterio.transform.array_bounds(height, width, transform)
+
+            dst_transform, dst_width, dst_height = calculate_default_transform(
+                crs if crs else rasterio.crs.CRS.from_epsg(4326),
+                target_crs,
+                width,
+                height,
+                left,
+                bottom,
+                right,
+                top
+            )
+
+            reprojected_ndvi = np.zeros((dst_height, dst_width), dtype=np.float32)
+
+            reproject(
+                source=high_res_ndvi,
+                destination=reprojected_ndvi,
+                src_transform=transform,
+                src_crs=crs if crs else rasterio.crs.CRS.from_epsg(4326),
+                dst_transform=dst_transform,
+                dst_crs=target_crs,
+                resampling=Resampling.bilinear
+            )
+
+            high_res_ndvi = reprojected_ndvi
+            src_metadata = src_metadata.copy()
+            src_metadata.update({
+                "crs": target_crs,
+                "transform": dst_transform,
+                "width": dst_width,
+                "height": dst_height
+            })
+
+            transform = dst_transform
+            crs = target_crs
 
         current_resolution = abs(transform.a)
 

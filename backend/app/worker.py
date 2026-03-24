@@ -82,8 +82,10 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
                     {"type": "Polygon", "coordinates": geometry},
                 )
             except Exception as drone_error:
+                error_msg = str(drone_error)
+                print(f"❌ Drone processing error: {error_msg}")
                 result["drone_data"] = {
-                    "error": str(drone_error),
+                    "error": error_msg,
                     "vegetation_area_ha": None,
                     "total_area_ha": None,
                     "vegetation_percentage": None,
@@ -94,8 +96,24 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
         # JOB SUCCESS
         # =====================================================
         job_store[job_id]["status"] = "completed"
+
+        # Evaluate drone TIFF usefulness
+        drone_data = result.get("drone_data")
+        useful = False
+        if drone_data and not drone_data.get("error"):
+            ndvi_pct = drone_data.get("vegetation_percentage")
+            mean_ndvi = drone_data.get("mean_ndvi")
+            if ndvi_pct is not None and mean_ndvi is not None:
+                useful = ndvi_pct > 10 and mean_ndvi > 0.05
+
+        result["drone_tif_useful"] = useful
+        if useful:
+            print(f"✅ Drone TIFF for job {job_id} appears useful: vegetation {drone_data.get('vegetation_percentage')}%, mean NDVI {drone_data.get('mean_ndvi')}")
+        else:
+            print(f"⚠️ Drone TIFF for job {job_id} appears low-usefulness or missing. Data: {drone_data}")
+
         job_store[job_id]["result"] = result
-        
+
         # Send WhatsApp notification if deforestation detected
         change_ha = result["satellite_comparison"]["change_ha"]
         if change_ha > 0:
@@ -113,8 +131,11 @@ Job ID: {job_id[:8]}...
 📍 AOI Coordinates:
 {coords_str}
 
+🚁 Drone TIFF usefulness: {'useful' if useful else 'low / not useful'}
+
 Please review the results in the dashboard."""
-            send_whatsapp_message(personal_number, whatsapp_body)
+            whatsapp_sent = send_whatsapp_message(personal_number, whatsapp_body)
+            print(f"WhatsApp send status: {'sent' if whatsapp_sent else 'failed'}")
 
     except Exception as e:
         job_store[job_id]["status"] = "failed"
