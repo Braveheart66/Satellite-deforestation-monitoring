@@ -358,6 +358,11 @@ def process_drone_data_for_comparison(
 
     return {
         "drone_stats": stats,
+        "vegetation_area_ha": stats.get("vegetation_area_ha"),
+        "total_area_ha": stats.get("total_area_ha"),
+        "vegetation_percentage": stats.get("vegetation_percentage"),
+        "mean_ndvi": stats.get("mean_ndvi"),
+        "std_ndvi": stats.get("std_ndvi"),
         "original_resolution_m": abs(meta["transform"].a),
         "downscaled_resolution_m": processor.satellite_resolution,
         "ndvi_visualization_id": os.path.basename(drone_image_path).replace('.tif', '')
