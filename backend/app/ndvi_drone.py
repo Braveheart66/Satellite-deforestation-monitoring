@@ -230,16 +230,24 @@ class DroneNDVIProcessor:
 
         current_resolution = abs(transform.a)
 
-        if current_resolution >= target_resolution:
+        if current_resolution > target_resolution:
             raise ValueError(
                 f"Drone resolution ({current_resolution}m) "
                 f"is coarser than target ({target_resolution}m)"
             )
 
-        scale_factor = current_resolution / target_resolution
+        # Downscale: target is coarser than source, so factor < 1
+        scale_factor = target_resolution / current_resolution
 
-        new_width = int(high_res_ndvi.shape[1] / scale_factor)
-        new_height = int(high_res_ndvi.shape[0] / scale_factor)
+        new_width = int(high_res_ndvi.shape[1] * (1 / scale_factor))
+        new_height = int(high_res_ndvi.shape[0] * (1 / scale_factor))
+
+        # If scale factor is too large due to mis-specified metadata, fail fast
+        if new_width <= 0 or new_height <= 0 or new_width > 10000 or new_height > 10000:
+            raise ValueError(
+                f"Computed downscaled size is invalid: {new_width}x{new_height}. "
+                "Check raster metadata and target resolution."
+            )
 
         downscaled = cv2.resize(
             high_res_ndvi,
