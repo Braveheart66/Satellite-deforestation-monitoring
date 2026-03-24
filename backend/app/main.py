@@ -1,4 +1,4 @@
-from fastapi import FastAPI, BackgroundTasks, UploadFile, File, HTTPException
+from fastapi import FastAPI, BackgroundTasks, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from typing import Dict
@@ -63,7 +63,11 @@ def root():
 # DRONE IMAGE UPLOAD
 # ================================
 @app.post("/upload-drone-image")
-async def upload_drone_image(file: UploadFile = File(...)):
+async def upload_drone_image(
+    file: UploadFile = File(...),
+    bounds: str | None = Form(None),
+    crs: str = Form("EPSG:4326")
+):
     file_id = str(uuid.uuid4())
     original_path = UPLOAD_DIR / f"{file_id}_original{Path(file.filename).suffix}"
     tiff_path = UPLOAD_DIR / f"{file_id}.tif"
@@ -72,11 +76,29 @@ async def upload_drone_image(file: UploadFile = File(...)):
     with original_path.open("wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
+    bounds_tuple = None
+    if bounds:
+        try:
+            parts = bounds.replace("[", "").replace("]", "").split(",")
+            bounds_tuple = tuple(float(p.strip()) for p in parts)
+            if len(bounds_tuple) != 4:
+                raise ValueError
+        except Exception:
+            raise HTTPException(
+                status_code=400,
+                detail="`bounds` must be provided as 'west,south,east,north' or [west,south,east,north]"
+            )
+
     # Check if JPG and convert to NDVI-ready TIFF
     if file.filename.lower().endswith(('.jpg', '.jpeg')):
         from app.ndvi_drone import DroneNDVIProcessor
         processor = DroneNDVIProcessor()
-        processor.convert_jpg_to_ndvi_tiff(str(original_path), str(tiff_path))
+        processor.convert_jpg_to_ndvi_tiff(
+            str(original_path),
+            str(tiff_path),
+            bounds=bounds_tuple,
+            crs=crs
+        )
         # Remove original JPG after conversion
         original_path.unlink()
     else:
@@ -86,7 +108,9 @@ async def upload_drone_image(file: UploadFile = File(...)):
     return {
         "file_id": file_id,
         "filename": file.filename,
-        "converted": file.filename.lower().endswith(('.jpg', '.jpeg'))
+        "converted": file.filename.lower().endswith(('.jpg', '.jpeg')),
+        "bounds": bounds_tuple,
+        "crs": crs
     }
 
 # ================================

@@ -284,6 +284,12 @@ class DroneNDVIProcessor:
 
         from rasterio.io import MemoryFile
 
+        if not metadata.get("crs"):
+            raise ValueError(
+                "Drone image is not georeferenced (missing CRS). "
+                "Please upload a georeferenced GeoTIFF or provide bounds+CRS."
+            )
+
         aoi_projected = transform_geom(
             "EPSG:4326",
             metadata["crs"],
@@ -294,12 +300,26 @@ class DroneNDVIProcessor:
             with memfile.open(**metadata) as dataset:
                 dataset.write(ndvi_array, 1)
 
-                cropped, transform = mask(
-                    dataset,
-                    [aoi_projected],
-                    crop=True,
-                    nodata=-999
-                )
+                try:
+                    cropped, transform = mask(
+                        dataset,
+                        [aoi_projected],
+                        crop=True,
+                        nodata=-999
+                    )
+                except ValueError as e:
+                    if "Input shapes do not overlap raster" in str(e):
+                        raise ValueError(
+                            "AOI does not overlap the drone image. "
+                            "Verify drone imagery bounds/CRS and AOI conversion."
+                        )
+                    raise
+
+                if cropped.size == 0:
+                    raise ValueError(
+                        "After clipping, crop result is empty. "
+                        "This indicates no overlap between AOI and drone image."
+                    )
 
                 pixel_area = abs(transform.a * transform.e)
 
@@ -347,6 +367,13 @@ def process_drone_data_for_comparison(
         nir_band
     )
 
+    if not meta.get("crs"):
+        raise ValueError(
+            "Drone image does not contain CRS. "
+            "Cannot align to AOI in lat/lng. "
+            "Please upload a georeferenced GeoTIFF or provide bounds + CRS."
+        )
+
     downscaled, down_meta = processor.downscale_to_satellite_resolution(
         ndvi,
         meta
@@ -366,12 +393,12 @@ def process_drone_data_for_comparison(
 
     return {
         "drone_stats": stats,
-        "vegetation_area_ha": stats.get("vegetation_area_ha"),
-        "total_area_ha": stats.get("total_area_ha"),
-        "vegetation_percentage": stats.get("vegetation_percentage"),
-        "mean_ndvi": stats.get("mean_ndvi"),
-        "std_ndvi": stats.get("std_ndvi"),
-        "original_resolution_m": abs(meta["transform"].a),
-        "downscaled_resolution_m": processor.satellite_resolution,
+        "vegetation_area_ha": float(stats.get("vegetation_area_ha", 0)),
+        "total_area_ha": float(stats.get("total_area_ha", 0)),
+        "vegetation_percentage": float(stats.get("vegetation_percentage", 0)),
+        "mean_ndvi": float(stats.get("mean_ndvi", 0)),
+        "std_ndvi": float(stats.get("std_ndvi", 0)),
+        "original_resolution_m": float(abs(meta["transform"].a)),
+        "downscaled_resolution_m": float(processor.satellite_resolution),
         "ndvi_visualization_id": os.path.basename(drone_image_path).replace('.tif', '')
     }

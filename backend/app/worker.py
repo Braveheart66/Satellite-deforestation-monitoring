@@ -106,8 +106,9 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
             if ndvi_pct is not None and mean_ndvi is not None:
                 useful = ndvi_pct > 10 and mean_ndvi > 0.05
 
-        result["drone_tif_useful"] = useful
-        if useful:
+        # Ensure we store pure Python bool, not numpy.bool
+        result["drone_tif_useful"] = bool(useful)
+        if result["drone_tif_useful"]:
             print(f"✅ Drone TIFF for job {job_id} appears useful: vegetation {drone_data.get('vegetation_percentage')}%, mean NDVI {drone_data.get('mean_ndvi')}")
         else:
             print(f"⚠️ Drone TIFF for job {job_id} appears low-usefulness or missing. Data: {drone_data}")
