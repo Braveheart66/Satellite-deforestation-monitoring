@@ -96,20 +96,27 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
         job_store[job_id]["status"] = "completed"
         job_store[job_id]["result"] = result
         
-        # Send SMS and WhatsApp notification if phone number provided
-        phone_number = payload.get("phone_number")
-        if phone_number:
-            send_job_completion_sms(phone_number, job_id, result)
+        # Send WhatsApp notification if deforestation detected
+        change_ha = result["satellite_comparison"]["change_ha"]
+        if change_ha > 0:
+            personal_number = "+919555268266"
+            coords_str = "\n".join([f"({lat:.4f}, {lng:.4f})" for lng, lat in geometry[0]])
+            whatsapp_body = f"""🚨 DEFORESTATION DETECTED 🚨
 
-            whatsapp_body = f"Deforestation analysis complete (Job {job_id[:8]}...). Review results in the dashboard."
-            send_whatsapp_message(phone_number, whatsapp_body)
+Job ID: {job_id[:8]}...
+
+📊 Report:
+- Past year ({past_year}): {result["satellite_comparison"]["past_cover_ha"]} ha
+- Present year ({present_year}): {result["satellite_comparison"]["present_cover_ha"]} ha
+- Deforestation: {change_ha} ha lost
+
+📍 AOI Coordinates:
+{coords_str}
+
+Please review the results in the dashboard."""
+            send_whatsapp_message(personal_number, whatsapp_body)
 
     except Exception as e:
         job_store[job_id]["status"] = "failed"
         job_store[job_id]["error"] = str(e)
         job_store[job_id]["traceback"] = traceback.format_exc()
-        
-        # Send failure notification if phone number provided
-        phone_number = payload.get("phone_number")
-        if phone_number:
-            send_job_completion_sms(phone_number, job_id, None, error=str(e))

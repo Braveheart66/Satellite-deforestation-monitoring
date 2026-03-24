@@ -23,7 +23,7 @@ export default function DeforestationMonitor() {
   const [uploadStatus, setUploadStatus] = useState("");
 
   // SMS
-  const [phoneNumber, setPhoneNumber] = useState("");
+  // const [phoneNumber, setPhoneNumber] = useState("");
 
   // Analysis / Job
   const [result, setResult] = useState<any>(null);
@@ -85,7 +85,7 @@ export default function DeforestationMonitor() {
         },
         past_year: pastYear,
         present_year: presentYear,
-        phone_number: phoneNumber || undefined,
+        // phone_number: phoneNumber || undefined,
       };
 
       const submitUrl = droneFileId
@@ -228,25 +228,6 @@ export default function DeforestationMonitor() {
           Upload
         </button>
         {uploadStatus && <div style={{ marginTop: "1rem" }}>{uploadStatus}</div>}
-      </div>
-
-      <div style={sectionStyle}>
-        <h3 style={{ marginBottom: "1rem" }}>SMS notifications (optional)</h3>
-        <label style={{ display: "block", marginBottom: "0.5rem" }}>Phone number</label>
-        <input
-          type="tel"
-          placeholder="+1234567890"
-          value={phoneNumber}
-          onChange={(e) => setPhoneNumber(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "0.5rem",
-            borderRadius: "4px",
-            border: "1px solid #ccc",
-            maxWidth: "300px",
-            boxSizing: "border-box",
-          }}
-        />
       </div>
 
       <div style={sectionStyle}>
