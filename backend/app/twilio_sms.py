@@ -4,8 +4,15 @@ Handles sending SMS notifications for job completion/failure
 """
 
 import os
+from pathlib import Path
 from twilio.rest import Client
 from typing import Optional, Dict, Any
+from dotenv import load_dotenv
+
+# Load backend .env if available (for local development)
+env_path = Path(__file__).resolve().parents[1] / ".env"
+if env_path.exists():
+    load_dotenv(dotenv_path=env_path, override=False)
 
 
 def get_twilio_client() -> Optional[Client]:
