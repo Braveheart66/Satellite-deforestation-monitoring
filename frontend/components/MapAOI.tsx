@@ -21,7 +21,7 @@ const MapAOIClient = dynamic(() => import("./MapAOIClient"), {
 });
 
 type Props = {
-  onAOISelect: (coords: number[][][]) => void;
+  onAOISelect: (coords: number[][][] | null) => void;
 };
 
 export default function MapAOI(props: Props) {
