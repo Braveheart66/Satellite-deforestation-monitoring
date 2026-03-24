@@ -100,6 +100,31 @@ Check results online for detailed map & metrics.
         return False
 
 
+def send_whatsapp_message(recipient_phone: str, message_body: str) -> bool:
+    """Send an outbound WhatsApp message via Twilio."""
+    client = get_twilio_client()
+    if not client:
+        return False
+
+    from_whatsapp = os.getenv("TWILIO_WHATSAPP_FROM")
+    if not from_whatsapp:
+        print("⚠️ TWILIO_WHATSAPP_FROM not configured")
+        return False
+
+    to_whatsapp = f"whatsapp:{recipient_phone}"
+    try:
+        message = client.messages.create(
+            body=message_body,
+            from_=from_whatsapp,
+            to=to_whatsapp,
+        )
+        print(f"✅ WhatsApp sent to {to_whatsapp} (SID: {message.sid})")
+        return True
+    except Exception as e:
+        print(f"❌ Failed to send WhatsApp: {str(e)}")
+        return False
+
+
 def send_job_started_sms(
     recipient_phone: str,
     job_id: str

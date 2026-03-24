@@ -7,7 +7,7 @@ from app.ndvi_satellite import (
     compute_ndvi_difference_tile,
 )
 from app.ndvi_drone import process_drone_data_for_comparison
-from app.twilio_sms import send_job_completion_sms
+from app.twilio_sms import send_job_completion_sms, send_whatsapp_message
 
 
 def calculate_deforestation_rate(past, present, years):
@@ -96,10 +96,13 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
         job_store[job_id]["status"] = "completed"
         job_store[job_id]["result"] = result
         
-        # Send SMS notification if phone number provided
+        # Send SMS and WhatsApp notification if phone number provided
         phone_number = payload.get("phone_number")
         if phone_number:
             send_job_completion_sms(phone_number, job_id, result)
+
+            whatsapp_body = f"Deforestation analysis complete (Job {job_id[:8]}...). Review results in the dashboard."
+            send_whatsapp_message(phone_number, whatsapp_body)
 
     except Exception as e:
         job_store[job_id]["status"] = "failed"
