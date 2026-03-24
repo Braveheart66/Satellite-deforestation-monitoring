@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import MapAOI from "../components/MapAOI";
@@ -7,60 +7,43 @@ import ResultsPanel from "@/components/ResultsPanel";
 export default function DeforestationMonitor() {
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    // Ensure we only render after hydration
-    setMounted(true);
-  }, []);
-  /* =========================================================
-     STATE: AOI SELECTION
-  ========================================================= */
+  // AOI selection state
   const [aoi, setAOI] = useState<number[][][] | null>(null);
-
-  const [geojsonInput, setGeojsonInput] = useState<string>("");
+  const [geojsonInput, setGeojsonInput] = useState("");
   const [aoiMode, setAOIMode] = useState<"map" | "geojson">("map");
   const [geojsonError, setGeojsonError] = useState<string | null>(null);
 
-  /* =========================================================
-     STATE: TIME PERIOD
-  ========================================================= */
-  const [pastYear, setPastYear] = useState<number>(2016);
-  const [presentYear, setPresentYear] = useState<number>(2024);
+  // Time period
+  const [pastYear, setPastYear] = useState(2016);
+  const [presentYear, setPresentYear] = useState(2024);
 
-  /* =========================================================
-     STATE: DRONE IMAGE
-  ========================================================= */
+  // Drone upload
   const [droneFile, setDroneFile] = useState<File | null>(null);
   const [droneFileId, setDroneFileId] = useState<string | null>(null);
-  const [uploadStatus, setUploadStatus] = useState<string>("");
+  const [uploadStatus, setUploadStatus] = useState("");
 
-  /* =========================================================
-     STATE: USER CONTACT
-  ========================================================= */
-  const [phoneNumber, setPhoneNumber] = useState<string>("");
+  // SMS
+  const [phoneNumber, setPhoneNumber] = useState("");
 
-  /* =========================================================
-     STATE: ANALYSIS / JOB
-  ========================================================= */
+  // Analysis / Job
   const [result, setResult] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [progress, setProgress] = useState<string>("");
+  const [progress, setProgress] = useState("");
 
-  /* =========================================================
-     CONFIG
-  ========================================================= */
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE!;
 
-  /* =========================================================
-     DRONE FILE UPLOAD HANDLER
-  ========================================================= */
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   async function handleDroneUpload() {
     if (!droneFile) {
-      setUploadStatus("❌ Please select a file first");
+      setUploadStatus("Please select a file first");
       return;
     }
 
-    setUploadStatus("📤 Uploading drone image...");
+    setUploadStatus("Uploading drone image...");
 
     const formData = new FormData();
     formData.append("file", droneFile);
@@ -76,19 +59,13 @@ export default function DeforestationMonitor() {
       }
 
       const data = await response.json();
-
       setDroneFileId(data.file_id);
-      setUploadStatus(
-        `✅ Successfully uploaded: ${data.filename}`
-      );
+      setUploadStatus(`Successfully uploaded: ${data.filename}`);
     } catch (err: any) {
-      setUploadStatus(`❌ Upload failed: ${err.message}`);
+      setUploadStatus(`Upload failed: ${err?.message ?? "Unknown error"}`);
     }
   }
 
-  /* =========================================================
-     RUN ANALYSIS (SUBMIT + POLL)
-  ========================================================= */
   async function runAnalysis() {
     if (!aoi) {
       setError("Please select an Area of Interest first");
@@ -126,7 +103,7 @@ export default function DeforestationMonitor() {
       }
 
       const { job_id } = await submitResponse.json();
-      setProgress(`Job submitted (ID: ${job_id.slice(0, 8)}…)`);
+      setProgress(`Job submitted (ID: ${job_id.slice(0, 8)}...)`);
 
       const pollInterval = setInterval(async () => {
         const pollResponse = await fetch(`${API_BASE}/jobs/${job_id}`);
@@ -147,15 +124,12 @@ export default function DeforestationMonitor() {
         }
       }, 3000);
     } catch (err: any) {
-      setError(err.message);
+      setError(err?.message ?? "Unexpected error");
       setLoading(false);
       setProgress("");
     }
   }
 
-  /* =========================================================
-     RENDER
-  ========================================================= */
   if (!mounted) {
     return (
       <div style={containerStyle}>
@@ -166,22 +140,34 @@ export default function DeforestationMonitor() {
 
   return (
     <div style={containerStyle}>
-      {/* ================= HEADER ================= */}
-      <h1 style={{ marginBottom: "0.5rem" }}>
-        🛰️ Drone-Based Deforestation Monitor
-      </h1>
-
+      <h1 style={{ marginBottom: "0.5rem" }}>Drone-Based Deforestation Monitor</h1>
       <p style={{ color: "#666", marginBottom: "2rem" }}>
-        Multi-source analysis: Past Satellite → Present Satellite → Drone
+        Multi-source analysis: Past Satellite to Present Satellite to Drone
       </p>
 
-      {/* ================= STEP 1 ================= */}
-      <section style={sectionStyle}>
-        <h2>Step 1: Select Area of Interest</h2>
+      <div style={sectionStyle}>
+        <h3 style={{ marginBottom: "1rem" }}>Area of Interest</h3>
 
         <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
-          <button onClick={() => setAOIMode("map")}>🗺️ Draw on Map</button>
-          <button onClick={() => setAOIMode("geojson")}>🧾 Paste GeoJSON</button>
+          <button
+            onClick={() => setAOIMode("map")}
+            style={{
+              ...buttonStyle,
+              background: aoiMode === "map" ? "#000" : "#ccc",
+            }}
+          >
+            Draw on Map
+          </button>
+
+          <button
+            onClick={() => setAOIMode("geojson")}
+            style={{
+              ...buttonStyle,
+              background: aoiMode === "geojson" ? "#000" : "#ccc",
+            }}
+          >
+            Use GeoJSON
+          </button>
         </div>
 
         {aoiMode === "map" && <MapAOI onAOISelect={setAOI} />}
@@ -189,23 +175,18 @@ export default function DeforestationMonitor() {
         {aoiMode === "geojson" && (
           <>
             <textarea
-              placeholder="Paste GeoJSON Polygon here"
+              placeholder='Paste GeoJSON Polygon {"type":"Polygon","coordinates":[[[lng,lat],...]]}'
               value={geojsonInput}
               onChange={(e) => setGeojsonInput(e.target.value)}
               style={geojsonStyle}
             />
-
             <button
-              style={{ marginTop: "1rem" }}
+              style={{ marginTop: "1rem", ...buttonStyle }}
               onClick={() => {
                 try {
                   setGeojsonError(null);
                   const parsed = JSON.parse(geojsonInput);
-
-                  if (
-                    parsed.type === "Polygon" &&
-                    Array.isArray(parsed.coordinates)
-                  ) {
+                  if (parsed.type === "Polygon" && Array.isArray(parsed.coordinates)) {
                     setAOI(parsed.coordinates);
                   } else {
                     throw new Error("Invalid GeoJSON Polygon");
@@ -215,12 +196,11 @@ export default function DeforestationMonitor() {
                 }
               }}
             >
-              ✅ Use GeoJSON AOI
+              Use GeoJSON
             </button>
-
             {geojsonError && (
               <div style={{ marginTop: "0.5rem", color: "red" }}>
-                ❌ {geojsonError}
+                {geojsonError}
               </div>
             )}
           </>
@@ -231,34 +211,28 @@ export default function DeforestationMonitor() {
             AOI selected with {aoi[0].length} points
           </div>
         )}
-      </section>
+      </div>
 
-      {/* ================= STEP 2 ================= */}
-      <section style={sectionStyle}>
-        <h2>Step 2: Upload Drone Image (Optional)</h2>
-
+      <div style={sectionStyle}>
+        <h3 style={{ marginBottom: "1rem" }}>Upload Drone Image (optional)</h3>
         <input
           type="file"
           accept=".tif,.tiff"
-          onChange={(e) => setDroneFile(e.target.files?.[0] || null)}
+          onChange={(e) => setDroneFile(e.target.files?.[0] ?? null)}
         />
-
-        <button onClick={handleDroneUpload} disabled={!droneFile}>
+        <button
+          onClick={handleDroneUpload}
+          disabled={!droneFile}
+          style={{ ...buttonStyle, marginTop: "1rem" }}
+        >
           Upload
         </button>
+        {uploadStatus && <div style={{ marginTop: "1rem" }}>{uploadStatus}</div>}
+      </div>
 
-        {uploadStatus && (
-          <div style={{ marginTop: "1rem" }}>{uploadStatus}</div>
-        )}
-      </section>
-
-      {/* ================= STEP 2.5: NOTIFICATION ================= */}
-      <section style={sectionStyle}>
-        <h2>Step 2.5: SMS Notifications (Optional)</h2>
-
-        <label style={{ display: "block", marginBottom: "0.5rem" }}>
-          📱 Phone Number (for SMS updates):
-        </label>
+      <div style={sectionStyle}>
+        <h3 style={{ marginBottom: "1rem" }}>SMS notifications (optional)</h3>
+        <label style={{ display: "block", marginBottom: "0.5rem" }}>Phone number</label>
         <input
           type="tel"
           placeholder="+1234567890"
@@ -273,75 +247,65 @@ export default function DeforestationMonitor() {
             boxSizing: "border-box",
           }}
         />
-        <p style={{ fontSize: "0.9rem", color: "#666", marginTop: "0.5rem" }}>
-          Leave empty to skip SMS. We'll text you when the analysis completes.
-        </p>
-      </section>
+      </div>
 
-      {/* ================= STEP 3 ================= */}
-      <section style={sectionStyle}>
-        <h2>Step 3: Select Time Period</h2>
-
+      <div style={sectionStyle}>
+        <h3 style={{ marginBottom: "1rem" }}>Time period</h3>
         <div style={{ display: "flex", gap: "1rem" }}>
-          <select
-            value={pastYear}
-            onChange={(e) => setPastYear(Number(e.target.value))}
-          >
-            {[2010, 2012, 2014, 2016, 2018, 2020].map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={presentYear}
-            onChange={(e) => setPresentYear(Number(e.target.value))}
-          >
-            {[2020, 2021, 2022, 2023, 2024].map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </select>
+          <div>
+            <label style={{ display: "block", marginBottom: "0.5rem" }}>Past year</label>
+            <select
+              value={pastYear}
+              onChange={(e) => setPastYear(Number(e.target.value))}
+              style={{ padding: "0.5rem" }}
+            >
+              {[2010, 2012, 2014, 2016, 2018, 2020].map((y) => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label style={{ display: "block", marginBottom: "0.5rem" }}>Present year</label>
+            <select
+              value={presentYear}
+              onChange={(e) => setPresentYear(Number(e.target.value))}
+              style={{ padding: "0.5rem" }}
+            >
+              {[2020, 2021, 2022, 2023, 2024].map((y) => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+          </div>
         </div>
-      </section>
+      </div>
 
-      {/* ================= STEP 4 ================= */}
-      <section style={sectionStyle}>
+      <div style={sectionStyle}>
         <button
           onClick={runAnalysis}
           disabled={!aoi || loading}
-          style={{ ...buttonStyle, background: loading ? "#666" : "#000" }}
+          style={{
+            ...buttonStyle,
+            background: loading ? "#666" : aoi ? "#000" : "#ccc",
+            cursor: aoi && !loading ? "pointer" : "not-allowed",
+          }}
         >
-          {loading ? "Processing…" : "Run Analysis"}
+          {loading ? "Processing..." : "Run analysis"}
         </button>
 
-        {progress && (
-          <div style={{ marginTop: "1rem", color: "#0066cc" }}>
-            {progress}
-          </div>
-        )}
+        {progress && <div style={{ marginTop: "1rem", color: "#0066cc" }}>{progress}</div>}
+        {error && <div style={{ marginTop: "1rem", color: "red" }}>{error}</div>}
+      </div>
 
-        {error && (
-          <div style={{ marginTop: "1rem", color: "red" }}>{error}</div>
-        )}
-      </section>
-
-      {/* ================= RESULTS ================= */}
       {result && aoi && <ResultsPanel result={result} aoi={aoi} />}
     </div>
   );
 }
 
-/* =========================================================
-   STYLES
-========================================================= */
 const containerStyle: React.CSSProperties = {
   padding: "2rem",
   maxWidth: "1200px",
   margin: "0 auto",
-  fontFamily: "system-ui",
+  fontFamily: "system-ui, sans-serif",
 };
 
 const sectionStyle: React.CSSProperties = {
@@ -349,7 +313,7 @@ const sectionStyle: React.CSSProperties = {
   padding: "1.5rem",
   background: "#fff",
   borderRadius: "8px",
-  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
 };
 
 const buttonStyle: React.CSSProperties = {
@@ -364,9 +328,9 @@ const buttonStyle: React.CSSProperties = {
 const geojsonStyle: React.CSSProperties = {
   width: "100%",
   height: "140px",
-  background: "#000",
-  color: "#fff",
+  background: "#f7f7f7",
+  color: "#111",
   padding: "1rem",
   borderRadius: "8px",
-  border: "1px solid #333",
+  border: "1px solid #ddd",
 };

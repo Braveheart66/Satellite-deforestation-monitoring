@@ -3,9 +3,6 @@
 import { LatLngExpression } from "leaflet";
 import { useEffect, useRef, useState } from "react";
 
-// Don't import react-leaflet at module level - causes SSR issues
-// Import them lazily inside useEffect
-
 let MapContainerComponent: any = null;
 let TileLayerComponent: any = null;
 
@@ -16,32 +13,29 @@ type Props = {
 const mapCenter: LatLngExpression = [26.9124, 75.7873];
 
 export default function MapAOIClient({ onAOISelect }: Props) {
-  const mapRef = useRef<any>(null);
+  const leafletRef = useRef<any>(null);
+  const [leafletMap, setLeafletMap] = useState<any>(null);
   const [isReady, setIsReady] = useState(false);
-  const [geoJsonInput, setGeoJsonInput] = useState("");
   const [hasError, setHasError] = useState(false);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [drawPoints, setDrawPoints] = useState<Array<[number, number]>>([]);
+  const [tempLayer, setTempLayer] = useState<any>(null);
+  const [aoiLayer, setAoiLayer] = useState<any>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const initializeComponents = async () => {
       try {
-        // Import react-leaflet components
-        const { MapContainer: MC, TileLayer: TL } =
-          await import("react-leaflet");
+        const { MapContainer: MC, TileLayer: TL } = await import("react-leaflet");
         MapContainerComponent = MC;
         TileLayerComponent = TL;
 
-        // Import and configure Leaflet
         const L = (await import("leaflet")).default;
+        leafletRef.current = L;
 
-        // Ensure CSS is loaded
-        if (typeof window !== "undefined") {
-          require("leaflet/dist/leaflet.css");
-        }
+        require("leaflet/dist/leaflet.css");
 
-        // Fix Leaflet icon URLs
-        // @ts-ignore
         delete (L.Icon.Default.prototype as any)._getIconUrl;
         L.Icon.Default.mergeOptions({
           iconRetinaUrl:
@@ -62,47 +56,75 @@ export default function MapAOIClient({ onAOISelect }: Props) {
     initializeComponents();
   }, []);
 
-  const handleGeoJsonUpload = async () => {
-    if (!geoJsonInput.trim() || !mapRef.current) return;
+  useEffect(() => {
+    if (!leafletMap) return;
 
-    try {
-      const L = (await import("leaflet")).default;
-      const geoJson = JSON.parse(geoJsonInput);
-      const map = mapRef.current as any;
+    const onMapClick = (event: any) => {
+      if (!isDrawing || !leafletRef.current) return;
 
-      // Remove existing layers
-      map.eachLayer((layer: any) => {
-        if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
-          map.removeLayer(layer);
-        }
-      });
+      const newPoint: [number, number] = [event.latlng.lat, event.latlng.lng];
+      const newPoints = [...drawPoints, newPoint];
+      setDrawPoints(newPoints);
 
-      // Handle both Feature and FeatureCollection
-      const features =
-        geoJson.type === "FeatureCollection"
-          ? geoJson.features
-          : [{ geometry: geoJson }];
+      if (tempLayer) {
+        leafletMap.removeLayer(tempLayer);
+      }
 
-      features.forEach((feature: any) => {
-        const geom = feature.geometry || feature;
-        if (geom.type === "Polygon") {
-          const polygon = L.polygon(
-            geom.coordinates[0].map((coord: any) => [coord[1], coord[0]])
-          );
-          polygon.addTo(map);
+      const line = leafletRef.current.polyline(newPoints, {
+        color: "#007bff",
+        dashArray: "6 6",
+      }).addTo(leafletMap);
+      setTempLayer(line);
+    };
 
-          // Send to parent
-          const coords = [geom.coordinates];
-          onAOISelect(coords);
+    leafletMap.on("click", onMapClick);
+    return () => leafletMap.off("click", onMapClick);
+  }, [leafletMap, isDrawing, drawPoints, tempLayer]);
 
-          // Fit map bounds
-          map.fitBounds(polygon.getBounds());
-        }
-      });
-    } catch (error) {
-      console.error("Error parsing GeoJSON:", error);
-      alert("Invalid GeoJSON format. Please check your input.");
+  const completeDrawing = () => {
+    if (!leafletMap || !leafletRef.current) return;
+
+    if (drawPoints.length < 3) {
+      alert("Please select at least 3 points to form a polygon.");
+      return;
     }
+
+    if (tempLayer) {
+      leafletMap.removeLayer(tempLayer);
+      setTempLayer(null);
+    }
+
+    if (aoiLayer) {
+      leafletMap.removeLayer(aoiLayer);
+    }
+
+    const polygon = leafletRef.current.polygon(drawPoints, {
+      color: "#28a745",
+      fillOpacity: 0.2,
+    }).addTo(leafletMap);
+
+    setAoiLayer(polygon);
+
+    const polygonCoords = [drawPoints.map((point) => [point[1], point[0]])];
+    onAOISelect(polygonCoords);
+
+    setIsDrawing(false);
+    setDrawPoints([]);
+  };
+
+  const clearSelection = () => {
+    if (tempLayer && leafletMap) {
+      leafletMap.removeLayer(tempLayer);
+      setTempLayer(null);
+    }
+
+    if (aoiLayer && leafletMap) {
+      leafletMap.removeLayer(aoiLayer);
+      setAoiLayer(null);
+    }
+
+    setDrawPoints([]);
+    onAOISelect([] as unknown as number[][][]);
   };
 
   if (hasError) {
@@ -118,7 +140,7 @@ export default function MapAOIClient({ onAOISelect }: Props) {
           color: "#c33",
         }}
       >
-        <p>⚠️ Map failed to load. Please refresh the page.</p>
+        <p>Map failed to load. Please refresh the page.</p>
       </div>
     );
   }
@@ -135,13 +157,60 @@ export default function MapAOIClient({ onAOISelect }: Props) {
           borderRadius: "14px",
         }}
       >
-        <p>🗺️ Loading map...</p>
+        <p>Loading map...</p>
       </div>
     );
   }
 
   return (
     <div>
+      <div style={{ marginBottom: "0.75rem", display: "flex", gap: "0.75rem" }}>
+        <button
+          onClick={() => setIsDrawing(!isDrawing)}
+          style={{
+            padding: "0.5rem 0.75rem",
+            backgroundColor: isDrawing ? "#d55376" : "#007bff",
+            color: "#fff",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+        >
+          {isDrawing ? "Drawing active (click map)" : "Start drawing"}
+        </button>
+        <button
+          onClick={completeDrawing}
+          disabled={drawPoints.length < 3}
+          style={{
+            padding: "0.5rem 0.75rem",
+            backgroundColor: drawPoints.length >= 3 ? "#28a745" : "#ccc",
+            color: "#fff",
+            border: "none",
+            borderRadius: "5px",
+            cursor: drawPoints.length >= 3 ? "pointer" : "not-allowed",
+          }}
+        >
+          Complete Polygon
+        </button>
+        <button
+          onClick={clearSelection}
+          style={{
+            padding: "0.5rem 0.75rem",
+            backgroundColor: "#555",
+            color: "#fff",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+        >
+          Clear
+        </button>
+      </div>
+
+      <div style={{ marginBottom: "0.75rem", color: "#333" }}>
+        Points in current draw: {drawPoints.length}
+      </div>
+
       <MapContainerComponent
         center={mapCenter}
         zoom={11}
@@ -152,11 +221,7 @@ export default function MapAOIClient({ onAOISelect }: Props) {
           overflow: "hidden",
           marginBottom: "12px",
         }}
-        ref={(mapInstance: any) => {
-          if (mapInstance) {
-            mapRef.current = mapInstance;
-          }
-        }}
+        whenCreated={setLeafletMap}
       >
         <TileLayerComponent
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -165,35 +230,9 @@ export default function MapAOIClient({ onAOISelect }: Props) {
       </MapContainerComponent>
 
       <div style={{ marginTop: "12px" }}>
-        <textarea
-          placeholder='Paste GeoJSON polygon here (e.g., {"type":"Polygon","coordinates":[[[lng,lat],...]]}'
-          value={geoJsonInput}
-          onChange={(e) => setGeoJsonInput(e.target.value)}
-          style={{
-            width: "100%",
-            height: "80px",
-            padding: "8px",
-            fontFamily: "monospace",
-            fontSize: "12px",
-            borderRadius: "6px",
-            border: "1px solid #ccc",
-            boxSizing: "border-box",
-          }}
-        />
-        <button
-          onClick={handleGeoJsonUpload}
-          style={{
-            marginTop: "8px",
-            padding: "8px 16px",
-            backgroundColor: "#4CAF50",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          Load Polygon
-        </button>
+        <p style={{ margin: 0 }}>
+          If you prefer, paste GeoJSON in the main page to set AOI directly.
+        </p>
       </div>
     </div>
   );
