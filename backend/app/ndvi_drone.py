@@ -231,13 +231,20 @@ class DroneNDVIProcessor:
         current_resolution = abs(transform.a)
 
         if current_resolution > target_resolution:
-            raise ValueError(
-                f"Drone resolution ({current_resolution}m) "
-                f"is coarser than target ({target_resolution}m)"
+            print(
+                f"⚠️ Drone resolution ({current_resolution:.4f}m) is coarser than target "
+                f"({target_resolution:.4f}m). Using source resolution with no upsampling."
             )
+            return high_res_ndvi, src_metadata
 
         # Downscale: target is coarser than source, so factor < 1
         scale_factor = target_resolution / current_resolution
+
+        if scale_factor <= 0:
+            raise ValueError(
+                f"Invalid scale factor {scale_factor}. "
+                f"Check source resolution {current_resolution} and target {target_resolution}."
+            )
 
         new_width = max(1, int(high_res_ndvi.shape[1] / scale_factor))
         new_height = max(1, int(high_res_ndvi.shape[0] / scale_factor))
