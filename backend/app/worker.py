@@ -113,6 +113,19 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
         else:
             print(f"⚠️ Drone TIFF for job {job_id} appears low-usefulness or missing. Data: {drone_data}")
 
+        # Compare drone results against present satellite estimate (current-year reference)
+        if drone_data and not drone_data.get("error"):
+            present_veg_ha = present_ha
+            drone_veg_ha = drone_data.get("vegetation_area_ha") or 0.0
+            result["drone_vs_present_satellite"] = {
+                "present_satellite_vegetation_ha": round(float(present_veg_ha), 2),
+                "drone_vegetation_ha": round(float(drone_veg_ha), 2),
+                "percent_of_satellite": round(
+                    (drone_veg_ha / present_veg_ha * 100) if present_veg_ha > 0 else 0,
+                    2
+                )
+            }
+
         job_store[job_id]["result"] = result
 
         # Send WhatsApp notification if deforestation detected

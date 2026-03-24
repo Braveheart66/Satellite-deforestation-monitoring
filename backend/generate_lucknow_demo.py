@@ -97,49 +97,31 @@ create_tif(
     red, green, blue, nir
 )
 
-# AOI examples in EPSG:4326 (lat/lon) suitable for these generated TIFFs:
-lko_aois = {
-    "kukrail_healthy_lko.tif": {
-        "type": "Polygon",
-        "coordinates": [[
-            [80.996, 26.901],
-            [81.001, 26.901],
-            [81.001, 26.906],
-            [80.996, 26.906],
-            [80.996, 26.901]
-        ]]
-    },
-    "kukrail_deforestation_lko.tif": {
-        "type": "Polygon",
-        "coordinates": [[
-            [81.021, 26.901],
-            [81.026, 26.901],
-            [81.026, 26.906],
-            [81.021, 26.906],
-            [81.021, 26.901]
-        ]]
-    },
-    "gomti_mixed_lko.tif": {
-        "type": "Polygon",
-        "coordinates": [[
-            [80.951, 26.861],
-            [80.956, 26.861],
-            [80.956, 26.866],
-            [80.951, 26.866],
-            [80.951, 26.861]
-        ]]
-    },
-    "hazratganj_urban_lko.tif": {
-        "type": "Polygon",
-        "coordinates": [[
-            [80.941, 26.871],
-            [80.946, 26.871],
-            [80.946, 26.876],
-            [80.941, 26.876],
-            [80.941, 26.871]
-        ]]
-    }
-}
+# Build AOIs based on the raster bounds to guarantee overlap
+from rasterio.coords import BoundingBox
+
+created_files = list(OUTPUT_DIR.glob("*_lko.tif"))
+lko_aois = {}
+
+for filepath in created_files:
+    with rasterio.open(filepath) as src:
+        bounds: BoundingBox = src.bounds
+        # keep a 10% inside margin to avoid exact-edge precision issues
+        margin_x = (bounds.right - bounds.left) * 0.10
+        margin_y = (bounds.top - bounds.bottom) * 0.10
+
+        aoi = {
+            "type": "Polygon",
+            "coordinates": [[
+                [bounds.left + margin_x, bounds.bottom + margin_y],
+                [bounds.right - margin_x, bounds.bottom + margin_y],
+                [bounds.right - margin_x, bounds.top - margin_y],
+                [bounds.left + margin_x, bounds.top - margin_y],
+                [bounds.left + margin_x, bounds.bottom + margin_y]
+            ]]
+        }
+
+        lko_aois[filepath.name] = aoi
 
 print("\n🎯 All Lucknow demo GeoTIFFs created successfully!")
 print("\nUse one of these AOIs with /analyze + drone_image_id to avoid overlap errors:")
