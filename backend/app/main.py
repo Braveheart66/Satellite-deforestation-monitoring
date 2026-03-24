@@ -1,5 +1,6 @@
 from fastapi import FastAPI, BackgroundTasks, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from typing import Dict
 import uuid
 import shutil
@@ -64,14 +65,28 @@ def root():
 @app.post("/upload-drone-image")
 async def upload_drone_image(file: UploadFile = File(...)):
     file_id = str(uuid.uuid4())
-    path = UPLOAD_DIR / f"{file_id}.tif"
+    original_path = UPLOAD_DIR / f"{file_id}_original{Path(file.filename).suffix}"
+    tiff_path = UPLOAD_DIR / f"{file_id}.tif"
 
-    with path.open("wb") as buffer:
+    # Save original file
+    with original_path.open("wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
+
+    # Check if JPG and convert to NDVI-ready TIFF
+    if file.filename.lower().endswith(('.jpg', '.jpeg')):
+        from app.ndvi_drone import DroneNDVIProcessor
+        processor = DroneNDVIProcessor()
+        processor.convert_jpg_to_ndvi_tiff(str(original_path), str(tiff_path))
+        # Remove original JPG after conversion
+        original_path.unlink()
+    else:
+        # Assume it's already a TIFF, just rename
+        original_path.rename(tiff_path)
 
     return {
         "file_id": file_id,
-        "filename": file.filename
+        "filename": file.filename,
+        "converted": file.filename.lower().endswith(('.jpg', '.jpeg'))
     }
 
 # ================================
@@ -105,3 +120,13 @@ def job_status(job_id: str):
     if job_id not in JOB_STORE:
         raise HTTPException(status_code=404, detail="Job not found")
     return JOB_STORE[job_id]
+
+# ================================
+# DRONE NDVI VISUALIZATION
+# ================================
+@app.get("/drone-ndvi/{file_id}")
+def get_drone_ndvi_visualization(file_id: str):
+    png_path = UPLOAD_DIR / f"{file_id}_ndvi.png"
+    if not png_path.exists():
+        raise HTTPException(status_code=404, detail="NDVI visualization not found")
+    return FileResponse(png_path, media_type="image/png")

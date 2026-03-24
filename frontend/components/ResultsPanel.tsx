@@ -20,6 +20,7 @@ type DroneData = {
   vegetation_percentage: number;
   mean_ndvi: number;
   error?: string;
+  ndvi_visualization_id?: string;
 };
 
 type ResultPayload = {
@@ -33,12 +34,13 @@ type ResultPayload = {
 type ResultsPanelProps = {
   result: ResultPayload;
   aoi: number[][][];
+  apiBase: string;
 };
 
 /* =========================================================
    RESULTS PANEL
 ========================================================= */
-export default function ResultsPanel({ result, aoi }: ResultsPanelProps) {
+export default function ResultsPanel({ result, aoi, apiBase }: ResultsPanelProps) {
   if (!result?.satellite_comparison) return null;
 
   const {
@@ -234,27 +236,45 @@ export default function ResultsPanel({ result, aoi }: ResultsPanelProps) {
               ⚠️ Drone processing error: {droneData.error}
             </div>
           ) : (
-            <div
-              style={{
-                background: "#f4f4f4",
-                padding: "1rem",
-                borderRadius: "8px",
-                fontSize: "0.85rem",
-              }}
-            >
-              <div>
-                <strong>Vegetation Area:</strong> {droneData.vegetation_area_ha?.toFixed(2)} ha
+            <>
+              <div
+                style={{
+                  background: "#f4f4f4",
+                  padding: "1rem",
+                  borderRadius: "8px",
+                  fontSize: "0.85rem",
+                }}
+              >
+                <div>
+                  <strong>Vegetation Area:</strong> {droneData.vegetation_area_ha?.toFixed(2)} ha
+                </div>
+                <div>
+                  <strong>Total Area:</strong> {droneData.total_area_ha?.toFixed(2)} ha
+                </div>
+                <div>
+                  <strong>Vegetation:</strong> {droneData.vegetation_percentage?.toFixed(2)}%
+                </div>
+                <div>
+                  <strong>Mean NDVI:</strong> {droneData.mean_ndvi?.toFixed(4)}
+                </div>
               </div>
-              <div>
-                <strong>Total Area:</strong> {droneData.total_area_ha?.toFixed(2)} ha
-              </div>
-              <div>
-                <strong>Vegetation:</strong> {droneData.vegetation_percentage?.toFixed(2)}%
-              </div>
-              <div>
-                <strong>Mean NDVI:</strong> {droneData.mean_ndvi?.toFixed(4)}
-              </div>
-            </div>
+
+              {/* Drone NDVI Visualization */}
+              {droneData.ndvi_visualization_id && (
+                <div style={{ marginTop: "1rem" }}>
+                  <h5 style={{ marginBottom: "0.5rem" }}>NDVI Visualization</h5>
+                  <img
+                    src={`${apiBase}/drone-ndvi/${droneData.ndvi_visualization_id}`}
+                    alt="Drone NDVI"
+                    style={{
+                      maxWidth: "100%",
+                      borderRadius: "8px",
+                      border: "1px solid #ddd"
+                    }}
+                  />
+                </div>
+              )}
+            </>
           )}
         </div>
       )}

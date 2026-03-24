@@ -217,7 +217,7 @@ export default function DeforestationMonitor() {
         <h3 style={{ marginBottom: "1rem" }}>Upload Drone Image (optional)</h3>
         <input
           type="file"
-          accept=".tif,.tiff"
+          accept=".tif,.tiff,.jpg,.jpeg"
           onChange={(e) => setDroneFile(e.target.files?.[0] ?? null)}
         />
         <button
@@ -277,7 +277,7 @@ export default function DeforestationMonitor() {
         {error && <div style={{ marginTop: "1rem", color: "red" }}>{error}</div>}
       </div>
 
-      {result && aoi && <ResultsPanel result={result} aoi={aoi} />}
+      {result && aoi && <ResultsPanel result={result} aoi={aoi} apiBase={API_BASE} />}
     </div>
   );
 }

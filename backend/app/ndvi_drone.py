@@ -7,13 +7,138 @@ import numpy as np
 import rasterio
 from rasterio.mask import mask
 from rasterio.warp import transform_geom
+from rasterio.transform import from_bounds
 from typing import Dict, Tuple
 import cv2
+import os
+from PIL import Image
 
 
 class DroneNDVIProcessor:
     def __init__(self, satellite_resolution: float = 10.0):
         self.satellite_resolution = satellite_resolution
+
+    def convert_jpg_to_ndvi_tiff(
+        self,
+        jpg_path: str,
+        output_tiff_path: str,
+        bounds: tuple = None,
+        crs: str = "EPSG:4326"
+    ) -> str:
+        """
+        Convert RGB JPG to multispectral TIFF ready for NDVI calculation.
+        Creates NIR band by enhancing green channel (common approximation).
+
+        Args:
+            jpg_path: Path to input JPG file
+            output_tiff_path: Path for output TIFF
+            bounds: (west, south, east, north) geographic bounds
+            crs: Coordinate reference system
+
+        Returns:
+            Path to created TIFF file
+        """
+        # Read JPG image
+        img = Image.open(jpg_path)
+        rgb = np.array(img)
+
+        # Convert to float and normalize to 0-1
+        rgb_float = rgb.astype(np.float32) / 255.0
+
+        # Extract RGB bands
+        red = rgb_float[:, :, 0]
+        green = rgb_float[:, :, 1]
+        blue = rgb_float[:, :, 2]
+
+        # Create NIR approximation (enhanced green + some red contribution)
+        # This is a simplified approximation - real multispectral would have true NIR
+        nir = np.clip(green * 1.2 + red * 0.3, 0, 1)
+
+        # Convert back to 16-bit
+        red_16 = (red * 65535).astype(np.uint16)
+        green_16 = (green * 65535).astype(np.uint16)
+        blue_16 = (blue * 65535).astype(np.uint16)
+        nir_16 = (nir * 65535).astype(np.uint16)
+
+        # Stack bands (R, G, B, NIR)
+        data = np.stack([red_16, green_16, blue_16, nir_16], axis=0)
+
+        height, width = red.shape
+
+        # Create default bounds if not provided
+        if bounds is None:
+            bounds = (0, 0, width, height)  # Pixel coordinates
+
+        # Create transform
+        transform = from_bounds(*bounds, width, height)
+
+        # Create metadata
+        metadata = {
+            'driver': 'GTiff',
+            'dtype': 'uint16',
+            'width': width,
+            'height': height,
+            'count': 4,
+            'crs': crs if bounds != (0, 0, width, height) else None,
+            'transform': transform,
+            'compress': 'lzw'
+        }
+
+        # Write TIFF
+        with rasterio.open(output_tiff_path, 'w', **metadata) as dst:
+            dst.write(data)
+            dst.set_band_description(1, 'Red')
+            dst.set_band_description(2, 'Green')
+            dst.set_band_description(3, 'Blue')
+            dst.set_band_description(4, 'NIR (approximated)')
+
+    def create_ndvi_visualization(
+        self,
+        ndvi_array: np.ndarray,
+        output_png_path: str,
+        colormap: str = "RdYlGn"
+    ) -> str:
+        """
+        Create a colorized PNG visualization of NDVI data
+
+        Args:
+            ndvi_array: NDVI values (-1 to 1)
+            output_png_path: Path for output PNG
+            colormap: Matplotlib colormap name
+
+        Returns:
+            Path to created PNG
+        """
+        import matplotlib.pyplot as plt
+        import matplotlib.colors as mcolors
+
+        # Create colormap
+        if colormap == "RdYlGn":
+            # Red for negative (no vegetation), Yellow for neutral, Green for healthy
+            colors = [
+                (0.8, 0.0, 0.0),    # Dark red for NDVI = -1
+                (1.0, 0.0, 0.0),    # Red for NDVI = -0.5
+                (1.0, 1.0, 0.0),    # Yellow for NDVI = 0
+                (0.0, 1.0, 0.0),    # Green for NDVI = 0.5
+                (0.0, 0.6, 0.0)     # Dark green for NDVI = 1
+            ]
+            cmap = mcolors.LinearSegmentedColormap.from_list("ndvi", colors, N=256)
+        else:
+            cmap = plt.get_cmap(colormap)
+
+        # Normalize NDVI to 0-1 for colormap
+        norm = mcolors.Normalize(vmin=-1, vmax=1)
+        ndvi_norm = norm(ndvi_array)
+
+        # Apply colormap
+        rgba = cmap(ndvi_norm)
+        rgb = (rgba[:, :, :3] * 255).astype(np.uint8)
+
+        # Save as PNG
+        img = Image.fromarray(rgb)
+        img.save(output_png_path)
+
+        return output_png_path
 
     def compute_drone_ndvi(
         self,
@@ -185,8 +310,13 @@ def process_drone_data_for_comparison(
 
     stats = processor.calculate_vegetation_cover(cropped, pixel_area)
 
+    # Generate NDVI visualization
+    vis_path = drone_image_path.replace('.tif', '_ndvi.png')
+    processor.create_ndvi_visualization(cropped, vis_path)
+
     return {
         "drone_stats": stats,
         "original_resolution_m": abs(meta["transform"].a),
-        "downscaled_resolution_m": processor.satellite_resolution
+        "downscaled_resolution_m": processor.satellite_resolution,
+        "ndvi_visualization_id": os.path.basename(drone_image_path).replace('.tif', '')
     }
