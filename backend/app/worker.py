@@ -2,6 +2,7 @@ import ee
 import traceback
 from typing import Dict
 from pathlib import Path
+import json
 
 from app.ndvi_satellite import (
     compute_satellite_ndvi,
@@ -45,6 +46,27 @@ def _build_location_summary(geometry: list) -> dict:
         },
         "aoi_vertices": int(vertex_count),
     }
+
+
+def _load_demo_aoi_for_tif(tif_name: str) -> dict | None:
+    """Return a known demo AOI polygon for a TIFF filename, if available."""
+    root = Path(__file__).resolve().parents[1]
+    candidate_files = [
+        root / "demo_drone_images" / "demo_aoi_pairs.json",
+        root / "demo_drone_images_lucknow" / "lucknow_demo_aoi_pairs.json",
+    ]
+
+    for pairs_file in candidate_files:
+        if not pairs_file.exists():
+            continue
+        try:
+            pairs = json.loads(pairs_file.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if tif_name in pairs:
+            return pairs[tif_name]
+
+    return None
 
 
 def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
@@ -110,9 +132,10 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
         # DRONE DATA (OPTIONAL & SAFE)
         # =====================================================
         if "drone_image_path" in payload:
+            tif_name = payload.get("drone_original_filename") or Path(payload["drone_image_path"]).name
             result["drone_input"] = {
                 "path": payload["drone_image_path"],
-                "filename": Path(payload["drone_image_path"]).name,
+                "filename": tif_name,
             }
             try:
                 result["drone_data"] = process_drone_data_for_comparison(
@@ -121,14 +144,35 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
                 )
             except Exception as drone_error:
                 error_msg = str(drone_error)
-                print(f"❌ Drone processing error: {error_msg}")
-                result["drone_data"] = {
-                    "error": error_msg,
-                    "vegetation_area_ha": None,
-                    "total_area_ha": None,
-                    "vegetation_percentage": None,
-                    "mean_ndvi": None,
-                }
+                fallback_ok = False
+
+                if "does not overlap" in error_msg.lower():
+                    demo_aoi = _load_demo_aoi_for_tif(tif_name)
+                    if demo_aoi:
+                        try:
+                            result["drone_data"] = process_drone_data_for_comparison(
+                                payload["drone_image_path"],
+                                demo_aoi,
+                            )
+                            result["drone_data_aoi_fallback"] = {
+                                "used": True,
+                                "reason": "Provided AOI did not overlap the drone TIFF. Used matched demo AOI pair.",
+                                "tif": tif_name,
+                            }
+                            fallback_ok = True
+                            print(f"[WARN] Drone AOI mismatch for {tif_name}. Applied matched demo AOI fallback.")
+                        except Exception as fallback_error:
+                            error_msg = str(fallback_error)
+
+                if not fallback_ok:
+                    print(f"[ERROR] Drone processing error: {error_msg}")
+                    result["drone_data"] = {
+                        "error": error_msg,
+                        "vegetation_area_ha": None,
+                        "total_area_ha": None,
+                        "vegetation_percentage": None,
+                        "mean_ndvi": None,
+                    }
 
         # =====================================================
         # JOB SUCCESS
@@ -147,9 +191,9 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
         # Ensure we store pure Python bool, not numpy.bool
         result["drone_tif_useful"] = bool(useful)
         if result["drone_tif_useful"]:
-            print(f"✅ Drone TIFF for job {job_id} appears useful: vegetation {drone_data.get('vegetation_percentage')}%, mean NDVI {drone_data.get('mean_ndvi')}")
+            print(f"[OK] Drone TIFF for job {job_id} appears useful: vegetation {drone_data.get('vegetation_percentage')}%, mean NDVI {drone_data.get('mean_ndvi')}")
         else:
-            print(f"⚠️ Drone TIFF for job {job_id} appears low-usefulness or missing. Data: {drone_data}")
+            print(f"[WARN] Drone TIFF for job {job_id} appears low-usefulness or missing. Data: {drone_data}")
 
         # Compare drone results against present satellite estimate (current-year reference)
         if drone_data and not drone_data.get("error"):
@@ -182,7 +226,7 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
             "recipient": email_target,
             "sent": bool(email_sent),
         }
-        print(f"📧 Completion email to {email_target}: {'✅ sent' if email_sent else '❌ failed/skipped'}")
+        print(f"[INFO] Completion email to {email_target}: {'sent' if email_sent else 'failed/skipped'}")
 
     except Exception as e:
         from app.email_notify import DEFAULT_RECIPIENT
@@ -203,4 +247,4 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
             "recipient": email_target,
             "sent": bool(email_sent),
         }
-        print(f"❌ Job {job_id} failed: {str(e)}")
+        print(f"[ERROR] Job {job_id} failed: {str(e)}")

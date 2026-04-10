@@ -24,6 +24,7 @@ app = FastAPI(
 # GLOBAL STORES
 # ================================
 JOB_STORE: Dict[str, dict] = {}
+UPLOAD_META: Dict[str, dict] = {}
 UPLOAD_DIR = Path("data/uploads")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -105,6 +106,10 @@ async def upload_drone_image(
         # Assume it's already a TIFF, just rename
         original_path.rename(tiff_path)
 
+    UPLOAD_META[file_id] = {
+        "original_filename": file.filename,
+    }
+
     return {
         "file_id": file_id,
         "filename": file.filename,
@@ -130,6 +135,10 @@ async def analyze(
     if drone_image_id:
         payload["drone_image_path"] = str(
             UPLOAD_DIR / f"{drone_image_id}.tif"
+        )
+        payload["drone_original_filename"] = (
+            UPLOAD_META.get(drone_image_id, {}).get("original_filename")
+            or f"{drone_image_id}.tif"
         )
 
     bg.add_task(run_ndvi_job, job_id, payload, JOB_STORE)
