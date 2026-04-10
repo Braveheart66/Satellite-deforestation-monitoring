@@ -7,7 +7,7 @@ from app.ndvi_satellite import (
     compute_ndvi_difference_tile,
 )
 from app.ndvi_drone import process_drone_data_for_comparison
-from app.twilio_sms import send_job_completion_sms, send_whatsapp_message
+from app.email_notify import send_job_completion_email, send_deforestation_alert_email
 
 
 def calculate_deforestation_rate(past, present, years):
@@ -21,6 +21,7 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
         geometry = payload["geometry"]["coordinates"]
         past_year = payload["past_year"]
         present_year = payload["present_year"]
+        notify_email = payload.get("notify_email")
 
         # =====================================================
         # SATELLITE NDVI AREA (NUMERIC — ALWAYS RUNS)
@@ -128,30 +129,41 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
 
         job_store[job_id]["result"] = result
 
-        # Send WhatsApp notification if deforestation detected
+        # =====================================================
+        # EMAIL NOTIFICATIONS
+        # =====================================================
+        # Send job completion email if user provided an email
+        if notify_email:
+            email_sent = send_job_completion_email(
+                recipient_email=notify_email,
+                job_id=job_id,
+                result=result,
+            )
+            print(f"Job completion email status: {'sent' if email_sent else 'failed/skipped'}")
+
+        # Send deforestation alert if vegetation loss detected
         change_ha = result["satellite_comparison"]["change_ha"]
-        if change_ha > 0:
-            personal_number = "+919555268266"
-            coords_str = "\n".join([f"({lat:.4f}, {lng:.4f})" for lng, lat in geometry[0]])
-            whatsapp_body = f"""🚨 DEFORESTATION DETECTED 🚨
-
-Job ID: {job_id[:8]}...
-
-📊 Report:
-- Past year ({past_year}): {result["satellite_comparison"]["past_cover_ha"]} ha
-- Present year ({present_year}): {result["satellite_comparison"]["present_cover_ha"]} ha
-- Deforestation: {change_ha} ha lost
-
-📍 AOI Coordinates:
-{coords_str}
-
-🚁 Drone TIFF usefulness: {'useful' if useful else 'low / not useful'}
-
-Please review the results in the dashboard."""
-            whatsapp_sent = send_whatsapp_message(personal_number, whatsapp_body)
-            print(f"WhatsApp send status: {'sent' if whatsapp_sent else 'failed'}")
+        if change_ha < 0:
+            alert_sent = send_deforestation_alert_email(
+                job_id=job_id,
+                result=result,
+                geometry=geometry,
+                past_year=past_year,
+                present_year=present_year,
+            )
+            print(f"Deforestation alert email status: {'sent' if alert_sent else 'failed/skipped'}")
 
     except Exception as e:
         job_store[job_id]["status"] = "failed"
         job_store[job_id]["error"] = str(e)
         job_store[job_id]["traceback"] = traceback.format_exc()
+
+        # Send failure email if user had provided email
+        notify_email = payload.get("notify_email")
+        if notify_email:
+            send_job_completion_email(
+                recipient_email=notify_email,
+                job_id=job_id,
+                result={},
+                error=str(e),
+            )

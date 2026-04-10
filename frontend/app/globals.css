@@ -1,73 +1,265 @@
-/* Fix marker icons (Leaflet quirk) */
-.leaflet-container {
-  width: 100%;
-  height: 100%;
+/* ================================
+   IMPORTS
+================================ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+/* ================================
+   CSS CUSTOM PROPERTIES
+================================ */
+:root {
+  --bg-primary: #050510;
+  --bg-secondary: #0a0a1f;
+  --bg-card: #0f0f2a;
+  --bg-card-hover: #141438;
+  --bg-glass: rgba(15, 15, 42, 0.65);
+
+  --accent-primary: #00d4aa;
+  --accent-secondary: #00a8e8;
+  --accent-tertiary: #7c3aed;
+  --accent-danger: #ef4444;
+  --accent-warning: #f59e0b;
+  --accent-gain: #22c55e;
+  --accent-loss: #ef4444;
+
+  --text-primary: #e8e8f0;
+  --text-secondary: #9090b0;
+  --text-muted: #555577;
+  --text-accent: #00d4aa;
+
+  --border: rgba(255, 255, 255, 0.06);
+  --border-hover: rgba(0, 212, 170, 0.3);
+
+  --glow-primary: 0 0 40px rgba(0, 212, 170, 0.2);
+  --glow-secondary: 0 0 40px rgba(0, 168, 232, 0.15);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  --font-heading: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
 }
 
-/* -------------------------------
-   GLOBAL THEME
---------------------------------*/
+/* ================================
+   RESET & BASE
+================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
 body {
-  background: #ffffff;
-  color: #111;
-  font-family: "Inter", system-ui, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
-/* -------------------------------
-   HEADINGS (3D EFFECT)
---------------------------------*/
-h1, h2, h3 {
-  color: #000;
-  letter-spacing: 0.5px;
-  text-shadow:
-    0 2px 0 #ccc,
-    0 4px 0 #bbb,
-    0 6px 10px rgba(0,0,0,0.15);
+/* ================================
+   SCROLLBAR
+================================ */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent-primary);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-secondary);
 }
 
-/* -------------------------------
-   BUTTONS (BLACK, 3D)
---------------------------------*/
-button {
-  background: #000;
+/* ================================
+   SELECTION
+================================ */
+::selection {
+  background: rgba(0, 212, 170, 0.3);
   color: #fff;
+}
+
+/* ================================
+   HEADINGS
+================================ */
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  text-shadow: none;
+}
+
+/* ================================
+   LINKS
+================================ */
+a {
+  color: var(--accent-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+a:hover {
+  color: var(--accent-secondary);
+}
+
+/* ================================
+   BUTTONS (dark theme override)
+================================ */
+button {
+  font-family: var(--font-body);
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  color: #000;
   border: none;
-  padding: 0.6rem 1.4rem;
-  font-size: 0.95rem;
+  padding: 0.7rem 1.5rem;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  border-radius: 6px;
-  box-shadow:
-    0 4px 0 #222,
-    0 6px 15px rgba(0,0,0,0.3);
-  transition: all 0.15s ease;
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 16px rgba(0, 212, 170, 0.25);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+  opacity: 0;
+  transition: opacity 0.25s ease;
 }
 
 button:hover {
-  transform: translateY(-1px);
-  box-shadow:
-    0 5px 0 #222,
-    0 8px 20px rgba(0,0,0,0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 212, 170, 0.35);
+}
+button:hover::before {
+  opacity: 1;
 }
 
 button:active {
-  transform: translateY(3px);
-  box-shadow:
-    0 1px 0 #222;
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 212, 170, 0.2);
 }
 
 button:disabled {
-  background: #666;
+  background: #2a2a3e;
+  color: #555577;
   cursor: not-allowed;
   box-shadow: none;
+  transform: none;
+}
+button:disabled::before {
+  display: none;
 }
 
-/* Swipe effect */
+/* ================================
+   INPUTS & SELECTS
+================================ */
+input, select, textarea {
+  font-family: var(--font-body);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 1rem;
+  font-size: 0.9rem;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  outline: none;
+  width: 100%;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.12);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--text-muted);
+}
+
+select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239090b0' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+/* ================================
+   GLASS MORPHISM CARD
+================================ */
+.glass-card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--glow-primary);
+}
+
+/* ================================
+   GRADIENT TEXT
+================================ */
+.grad-text {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.grad-text-warm {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ================================
+   LEAFLET OVERRIDES (dark theme)
+================================ */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-lg);
+  background: var(--bg-card) !important;
+}
+
+.leaflet-control-zoom a {
+  background: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border) !important;
+}
+
+.leaflet-control-attribution {
+  background: rgba(5, 5, 16, 0.8) !important;
+  color: var(--text-muted) !important;
+  font-size: 10px !important;
+}
+
+/* ================================
+   SWIPE & MAP SLIDER
+================================ */
 .past-layer {
   clip-path: inset(0 calc(100% - var(--slider)) 0 0);
 }
 
-/* Slider styling */
 .map-slider {
   position: absolute;
   bottom: 10px;
@@ -76,4 +268,78 @@ button:disabled {
   width: 80%;
 }
 
+/* ================================
+   ANIMATED GRADIENT BACKGROUND MESH
+================================ */
+.gradient-mesh {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
 
+.gradient-mesh::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(0, 212, 170, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(0, 168, 232, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 80%, rgba(124, 58, 237, 0.04) 0%, transparent 50%);
+  animation: meshMove 25s ease-in-out infinite alternate;
+}
+
+@keyframes meshMove {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(-2%, 3%) rotate(1deg); }
+  66% { transform: translate(2%, -2%) rotate(-1deg); }
+  100% { transform: translate(-1%, 1%) rotate(0.5deg); }
+}
+
+/* ================================
+   PARTICLE GRID EFFECT (for hero)
+================================ */
+@keyframes floatUp {
+  0% { transform: translateY(0) scale(1); opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { transform: translateY(-100vh) scale(0.3); opacity: 0; }
+}
+
+/* ================================
+   PULSE RING ANIMATION
+================================ */
+@keyframes pulseRing {
+  0% {
+    transform: scale(0.9);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* ================================
+   SECTION TRANSITIONS
+================================ */
+.section-reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.section-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ================================
+   RESPONSIVE HELPERS
+================================ */
+@media (max-width: 768px) {
+  h1 { font-size: 2rem !important; }
+  h2 { font-size: 1.5rem !important; }
+}

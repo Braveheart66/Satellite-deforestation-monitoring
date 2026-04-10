@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import NDVIDiffMap from "./NDVIDiffMap";
 
 /* =========================================================
@@ -51,9 +52,6 @@ export default function ResultsPanel({ result, aoi, apiBase }: ResultsPanelProps
     change_ha,
   } = result.satellite_comparison;
 
-  /* =======================================================
-     DERIVED VALUES
-  ======================================================= */
   const ndviTileUrl = result.ndvi_difference?.tile_url ?? null;
 
   const percentageChange = useMemo(() => {
@@ -83,27 +81,38 @@ export default function ResultsPanel({ result, aoi, apiBase }: ResultsPanelProps
   const aoiPoints = aoi?.[0]?.length ?? 0;
 
   const COLORS = {
-    gain: "#27ae60",
-    loss: "#c0392b",
-    neutral: "#7f8c8d",
+    gain: "#22c55e",
+    loss: "#ef4444",
+    neutral: "#9090b0",
   };
 
-  /* =======================================================
-     RENDER
-  ======================================================= */
   return (
-    <section
+    <motion.section
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
       style={{
         marginTop: "2rem",
-        padding: "1.75rem",
+        padding: "2rem",
         borderRadius: "16px",
-        background: "#fff",
-        boxShadow: "0 12px 32px rgba(0,0,0,0.12)",
+        background: "rgba(15, 15, 42, 0.65)",
+        backdropFilter: "blur(20px)",
+        border: "1px solid rgba(255,255,255,0.06)",
+        boxShadow: "0 12px 40px rgba(0,0,0,0.3)",
       }}
     >
-      <h2 style={{ marginBottom: "1.25rem" }}>📊 Analysis Results</h2>
+      <h2
+        style={{
+          marginBottom: "1.25rem",
+          fontSize: "1.5rem",
+          fontWeight: 700,
+          fontFamily: "var(--font-heading)",
+        }}
+      >
+        📊 Analysis Results
+      </h2>
 
-      <p style={{ fontSize: "0.8rem", color: "#666" }}>
+      <p style={{ fontSize: "0.8rem", color: "#555577", marginBottom: "1rem" }}>
         AOI Points: {aoiPoints}
       </p>
 
@@ -148,8 +157,8 @@ export default function ResultsPanel({ result, aoi, apiBase }: ResultsPanelProps
       </div>
 
       {/* ================= GAIN VS LOSS ================= */}
-      <div>
-        <h4 style={{ marginBottom: "0.75rem" }}>
+      <div style={{ marginBottom: "1.5rem" }}>
+        <h4 style={{ marginBottom: "0.75rem", fontSize: "1rem", fontWeight: 600 }}>
           🌿 Vegetation Gain vs Loss
         </h4>
 
@@ -157,7 +166,7 @@ export default function ResultsPanel({ result, aoi, apiBase }: ResultsPanelProps
           style={{
             position: "relative",
             height: "18px",
-            background: "#ecf0f1",
+            background: "rgba(255,255,255,0.06)",
             borderRadius: "999px",
             overflow: "hidden",
           }}
@@ -169,30 +178,36 @@ export default function ResultsPanel({ result, aoi, apiBase }: ResultsPanelProps
               top: 0,
               bottom: 0,
               width: "2px",
-              background: "#bbb",
+              background: "rgba(255,255,255,0.15)",
             }}
           />
 
           {isGain && (
-            <div
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${(visualPercent / MAX_VISUAL_PERCENT) * 50}%` }}
+              transition={{ duration: 1, ease: "easeOut" }}
               style={{
                 position: "absolute",
                 left: "50%",
                 height: "100%",
-                width: `${(visualPercent / MAX_VISUAL_PERCENT) * 50}%`,
-                background: COLORS.gain,
+                background: `linear-gradient(90deg, ${COLORS.gain}, ${COLORS.gain}88)`,
+                borderRadius: "0 99px 99px 0",
               }}
             />
           )}
 
           {isLoss && (
-            <div
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${(visualPercent / MAX_VISUAL_PERCENT) * 50}%` }}
+              transition={{ duration: 1, ease: "easeOut" }}
               style={{
                 position: "absolute",
                 right: "50%",
                 height: "100%",
-                width: `${(visualPercent / MAX_VISUAL_PERCENT) * 50}%`,
-                background: COLORS.loss,
+                background: `linear-gradient(270deg, ${COLORS.loss}, ${COLORS.loss}88)`,
+                borderRadius: "99px 0 0 99px",
               }}
             />
           )}
@@ -220,16 +235,24 @@ export default function ResultsPanel({ result, aoi, apiBase }: ResultsPanelProps
 
       {/* ================= DRONE ANALYSIS ================= */}
       {droneData && (
-        <div style={{ marginTop: "2rem" }}>
-          <h4 style={{ marginBottom: "0.75rem" }}>🚁 Drone Analysis</h4>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          style={{ marginTop: "1.5rem" }}
+        >
+          <h4 style={{ marginBottom: "0.75rem", fontSize: "1rem", fontWeight: 600 }}>
+            🚁 Drone Analysis
+          </h4>
 
           {droneData.error ? (
             <div
               style={{
-                background: "#fff3cd",
+                background: "rgba(245, 158, 11, 0.1)",
+                border: "1px solid rgba(245, 158, 11, 0.2)",
                 padding: "1rem",
-                borderRadius: "8px",
-                color: "#856404",
+                borderRadius: "12px",
+                color: "#f59e0b",
                 fontSize: "0.85rem",
               }}
             >
@@ -239,54 +262,77 @@ export default function ResultsPanel({ result, aoi, apiBase }: ResultsPanelProps
             <>
               <div
                 style={{
-                  background: "#f4f4f4",
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.06)",
                   padding: "1rem",
-                  borderRadius: "8px",
+                  borderRadius: "12px",
                   fontSize: "0.85rem",
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "0.75rem",
                 }}
               >
                 <div>
-                  <strong>Vegetation Area:</strong> {droneData.vegetation_area_ha?.toFixed(2)} ha
+                  <span style={{ color: "#555577" }}>Vegetation Area</span>
+                  <div style={{ fontWeight: 600, color: "#e8e8f0" }}>
+                    {droneData.vegetation_area_ha?.toFixed(2)} ha
+                  </div>
                 </div>
                 <div>
-                  <strong>Total Area:</strong> {droneData.total_area_ha?.toFixed(2)} ha
+                  <span style={{ color: "#555577" }}>Total Area</span>
+                  <div style={{ fontWeight: 600, color: "#e8e8f0" }}>
+                    {droneData.total_area_ha?.toFixed(2)} ha
+                  </div>
                 </div>
                 <div>
-                  <strong>Vegetation:</strong> {droneData.vegetation_percentage?.toFixed(2)}%
+                  <span style={{ color: "#555577" }}>Vegetation</span>
+                  <div style={{ fontWeight: 600, color: "#22c55e" }}>
+                    {droneData.vegetation_percentage?.toFixed(2)}%
+                  </div>
                 </div>
                 <div>
-                  <strong>Mean NDVI:</strong> {droneData.mean_ndvi?.toFixed(4)}
+                  <span style={{ color: "#555577" }}>Mean NDVI</span>
+                  <div style={{ fontWeight: 600, color: "#00d4aa" }}>
+                    {droneData.mean_ndvi?.toFixed(4)}
+                  </div>
                 </div>
               </div>
 
               {/* Drone NDVI Visualization */}
               {droneData.ndvi_visualization_id && (
                 <div style={{ marginTop: "1rem" }}>
-                  <h5 style={{ marginBottom: "0.5rem" }}>NDVI Visualization</h5>
+                  <h5 style={{ marginBottom: "0.5rem", fontSize: "0.9rem", fontWeight: 600 }}>
+                    NDVI Visualization
+                  </h5>
                   <img
                     src={`${apiBase}/drone-ndvi/${droneData.ndvi_visualization_id}`}
                     alt="Drone NDVI"
                     style={{
                       maxWidth: "100%",
-                      borderRadius: "8px",
-                      border: "1px solid #ddd"
+                      borderRadius: "12px",
+                      border: "1px solid rgba(255,255,255,0.06)",
                     }}
                   />
                 </div>
               )}
             </>
           )}
-        </div>
+        </motion.div>
       )}
 
       {/* ================= DRONE vs SATELLITE ================= */}
       {droneVegetation !== null && !droneData?.error && (
-        <div style={{ marginTop: "2rem" }}>
-          <h4 style={{ marginBottom: "0.75rem" }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          style={{ marginTop: "1.5rem" }}
+        >
+          <h4 style={{ marginBottom: "0.75rem", fontSize: "1rem", fontWeight: 600 }}>
             🚁 Drone vs 🛰 Satellite
           </h4>
 
-          <div>
+          <div style={{ color: "#9090b0", fontSize: "0.9rem" }}>
             Difference:{" "}
             <strong
               style={{
@@ -304,14 +350,14 @@ export default function ResultsPanel({ result, aoi, apiBase }: ResultsPanelProps
               ? " (satellite detected more vegetation)"
               : " (comparable vegetation levels)"}
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* ================= NDVI DIFFERENCE MAP ================= */}
       {ndviTileUrl && (
         <NDVIDiffMap aoi={aoi} tileUrl={ndviTileUrl} />
       )}
-    </section>
+    </motion.section>
   );
 }
 
@@ -328,18 +374,22 @@ function StatBox({
   color: string;
 }) {
   return (
-    <div
+    <motion.div
+      whileHover={{ y: -3, scale: 1.02 }}
+      transition={{ type: "spring", stiffness: 300 }}
       style={{
-        padding: "1rem",
+        padding: "1.25rem",
         borderRadius: "12px",
-        background: "#fafafa",
-        border: "1px solid #ddd",
+        background: "rgba(255,255,255,0.03)",
+        border: "1px solid rgba(255,255,255,0.06)",
       }}
     >
-      <div style={{ fontSize: "0.8rem", color: "#666" }}>{label}</div>
-      <div style={{ fontSize: "1.4rem", fontWeight: 700, color }}>
+      <div style={{ fontSize: "0.75rem", color: "#555577", marginBottom: "0.4rem" }}>
+        {label}
+      </div>
+      <div style={{ fontSize: "1.4rem", fontWeight: 700, color, fontFamily: "var(--font-heading)" }}>
         {value}
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -11,8 +11,7 @@ class NDVIRequest(BaseModel):
     geometry: Geometry
     past_year: int
     present_year: int
-    phone_number: Optional[str] = None
+    notify_email: Optional[str] = None
 
 class NDVIDifference(BaseModel):
     tile_url: str
-

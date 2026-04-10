@@ -1,8 +1,20 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import dynamic from "next/dynamic";
 import MapAOI from "../components/MapAOI";
 import ResultsPanel from "@/components/ResultsPanel";
+import FeaturesSection from "@/components/FeaturesSection";
+import HowItWorksSection from "@/components/HowItWorksSection";
+import StatsSection from "@/components/StatsSection";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+
+// Dynamic import for 3D hero (no SSR)
+const HeroBackground = dynamic(() => import("../components/HeroBackground"), {
+  ssr: false,
+});
 
 export default function DeforestationMonitor() {
   const [mounted, setMounted] = useState(false);
@@ -22,8 +34,10 @@ export default function DeforestationMonitor() {
   const [droneFileId, setDroneFileId] = useState<string | null>(null);
   const [uploadStatus, setUploadStatus] = useState("");
 
-  // SMS
-  // const [phoneNumber, setPhoneNumber] = useState("");
+  // Email notification
+  const [notifyEmail, setNotifyEmail] = useState(
+    "shivamsinghraghuvanshi1234@gmail.com"
+  );
 
   // Analysis / Job
   const [result, setResult] = useState<any>(null);
@@ -43,7 +57,7 @@ export default function DeforestationMonitor() {
       return;
     }
 
-    setUploadStatus("Uploading drone image...");
+    setUploadStatus("📤 Uploading drone image...");
 
     const formData = new FormData();
     formData.append("file", droneFile);
@@ -60,9 +74,9 @@ export default function DeforestationMonitor() {
 
       const data = await response.json();
       setDroneFileId(data.file_id);
-      setUploadStatus(`Successfully uploaded: ${data.filename}`);
+      setUploadStatus(`✅ Successfully uploaded: ${data.filename}`);
     } catch (err: any) {
-      setUploadStatus(`Upload failed: ${err?.message ?? "Unknown error"}`);
+      setUploadStatus(`❌ Upload failed: ${err?.message ?? "Unknown error"}`);
     }
   }
 
@@ -85,7 +99,7 @@ export default function DeforestationMonitor() {
         },
         past_year: pastYear,
         present_year: presentYear,
-        // phone_number: phoneNumber || undefined,
+        notify_email: notifyEmail || undefined,
       };
 
       const submitUrl = droneFileId
@@ -132,186 +146,819 @@ export default function DeforestationMonitor() {
 
   if (!mounted) {
     return (
-      <div style={containerStyle}>
-        <h1>Loading application...</h1>
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#050510",
+        }}
+      >
+        <motion.div
+          animate={{ opacity: [0.3, 1, 0.3] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+          style={{
+            fontFamily: "var(--font-heading)",
+            fontSize: "1.2rem",
+            color: "#00d4aa",
+          }}
+        >
+          🌿 Loading DeforestWatch...
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div style={containerStyle}>
-      <h1 style={{ marginBottom: "0.5rem" }}>Drone-Based Deforestation Monitor</h1>
-      <p style={{ color: "#666", marginBottom: "2rem" }}>
-        Multi-source analysis: Past Satellite to Present Satellite to Drone
-      </p>
+    <>
+      {/* Background Mesh */}
+      <div className="gradient-mesh" />
 
-      <div style={sectionStyle}>
-        <h3 style={{ marginBottom: "1rem" }}>Area of Interest</h3>
+      {/* Navbar */}
+      <Navbar />
 
-        <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
-          <button
-            onClick={() => setAOIMode("map")}
+      {/* ========== HERO SECTION ========== */}
+      <section
+        style={{
+          position: "relative",
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: "hidden",
+          padding: "6rem 2rem 4rem",
+        }}
+      >
+        <HeroBackground />
+        <div
+          style={{
+            position: "relative",
+            zIndex: 1,
+            textAlign: "center",
+            maxWidth: "750px",
+          }}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+          >
+            <span
+              style={{
+                display: "inline-block",
+                fontSize: "0.75rem",
+                fontWeight: 600,
+                color: "#00d4aa",
+                textTransform: "uppercase",
+                letterSpacing: "4px",
+                marginBottom: "1rem",
+                padding: "0.4rem 1rem",
+                background: "rgba(0,212,170,0.08)",
+                border: "1px solid rgba(0,212,170,0.2)",
+                borderRadius: "999px",
+              }}
+            >
+              Satellite + Drone Analysis
+            </span>
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.15 }}
             style={{
-              ...buttonStyle,
-              background: aoiMode === "map" ? "#000" : "#ccc",
+              fontSize: "3.5rem",
+              fontWeight: 900,
+              lineHeight: 1.1,
+              marginBottom: "1.25rem",
+              fontFamily: "var(--font-heading)",
             }}
           >
-            Draw on Map
-          </button>
+            Monitor{" "}
+            <span className="grad-text">Deforestation</span>
+            <br />
+            From Space
+          </motion.h1>
 
-          <button
-            onClick={() => setAOIMode("geojson")}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
             style={{
-              ...buttonStyle,
-              background: aoiMode === "geojson" ? "#000" : "#ccc",
+              fontSize: "1.1rem",
+              color: "#9090b0",
+              lineHeight: 1.7,
+              maxWidth: "550px",
+              margin: "0 auto 2rem",
             }}
           >
-            Use GeoJSON
-          </button>
+            Track vegetation changes with Google Earth Engine, drone imagery
+            NDVI analysis, and automated email alerts — all in real time.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.45 }}
+            style={{
+              display: "flex",
+              gap: "1rem",
+              justifyContent: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            <motion.a
+              href="#monitor"
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              style={{
+                padding: "0.85rem 2rem",
+                background: "linear-gradient(135deg, #00d4aa, #00a8e8)",
+                color: "#000",
+                fontWeight: 700,
+                fontSize: "0.95rem",
+                borderRadius: "12px",
+                textDecoration: "none",
+                boxShadow: "0 8px 32px rgba(0, 212, 170, 0.3)",
+                cursor: "pointer",
+              }}
+            >
+              Start Monitoring →
+            </motion.a>
+            <motion.a
+              href="#features"
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              style={{
+                padding: "0.85rem 2rem",
+                background: "transparent",
+                color: "#e8e8f0",
+                fontWeight: 600,
+                fontSize: "0.95rem",
+                borderRadius: "12px",
+                textDecoration: "none",
+                border: "1px solid rgba(255,255,255,0.12)",
+                cursor: "pointer",
+              }}
+            >
+              Learn More
+            </motion.a>
+          </motion.div>
+
+          {/* Scroll Indicator */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.5 }}
+            style={{
+              marginTop: "4rem",
+            }}
+          >
+            <motion.div
+              animate={{ y: [0, 12, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              style={{
+                width: "24px",
+                height: "40px",
+                border: "2px solid rgba(255,255,255,0.15)",
+                borderRadius: "12px",
+                margin: "0 auto",
+                display: "flex",
+                justifyContent: "center",
+                paddingTop: "8px",
+              }}
+            >
+              <motion.div
+                animate={{ opacity: [1, 0], y: [0, 14] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
+                style={{
+                  width: "3px",
+                  height: "8px",
+                  background: "#00d4aa",
+                  borderRadius: "99px",
+                }}
+              />
+            </motion.div>
+          </motion.div>
         </div>
+      </section>
 
-        {aoiMode === "map" && <MapAOI onAOISelect={setAOI} />}
+      {/* ========== STATS ========== */}
+      <StatsSection />
 
-        {aoiMode === "geojson" && (
-          <>
-            <textarea
-              placeholder='Paste GeoJSON Polygon {"type":"Polygon","coordinates":[[[lng,lat],...]]}'
-              value={geojsonInput}
-              onChange={(e) => setGeojsonInput(e.target.value)}
-              style={geojsonStyle}
-            />
+      {/* ========== FEATURES ========== */}
+      <FeaturesSection />
+
+      {/* ========== HOW IT WORKS ========== */}
+      <HowItWorksSection />
+
+      {/* ========== MONITOR SECTION ========== */}
+      <section
+        id="monitor"
+        style={{
+          padding: "6rem 2rem",
+          maxWidth: "1100px",
+          margin: "0 auto",
+        }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          viewport={{ once: true }}
+          style={{ textAlign: "center", marginBottom: "3rem" }}
+        >
+          <span
+            style={{
+              fontSize: "0.8rem",
+              fontWeight: 600,
+              color: "#00d4aa",
+              textTransform: "uppercase",
+              letterSpacing: "3px",
+              display: "block",
+              marginBottom: "0.75rem",
+            }}
+          >
+            ANALYSIS DASHBOARD
+          </span>
+          <h2
+            style={{
+              fontSize: "2.5rem",
+              fontWeight: 800,
+              marginBottom: "1rem",
+            }}
+          >
+            Start <span className="grad-text">Monitoring</span>
+          </h2>
+          <p
+            style={{
+              color: "#9090b0",
+              maxWidth: "500px",
+              margin: "0 auto",
+              fontSize: "1rem",
+            }}
+          >
+            Select your area, upload drone data, and run the analysis
+          </p>
+        </motion.div>
+
+        {/* --- AOI Section --- */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          viewport={{ once: true }}
+          className="glass-card"
+          style={{ padding: "2rem", marginBottom: "1.5rem" }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem",
+              marginBottom: "1.25rem",
+            }}
+          >
+            <span
+              style={{
+                width: "32px",
+                height: "32px",
+                borderRadius: "8px",
+                background: "rgba(0,212,170,0.12)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "1rem",
+              }}
+            >
+              📍
+            </span>
+            <h3
+              style={{
+                fontSize: "1.1rem",
+                fontWeight: 700,
+              }}
+            >
+              Area of Interest
+            </h3>
+          </div>
+
+          <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1rem" }}>
             <button
-              style={{ marginTop: "1rem", ...buttonStyle }}
-              onClick={() => {
-                try {
-                  setGeojsonError(null);
-                  const parsed = JSON.parse(geojsonInput);
-                  if (parsed.type === "Polygon" && Array.isArray(parsed.coordinates)) {
-                    setAOI(parsed.coordinates);
-                  } else {
-                    throw new Error("Invalid GeoJSON Polygon");
-                  }
-                } catch (err: any) {
-                  setGeojsonError(err.message || "Invalid GeoJSON");
-                }
+              onClick={() => setAOIMode("map")}
+              style={{
+                padding: "0.55rem 1.2rem",
+                fontSize: "0.85rem",
+                background:
+                  aoiMode === "map"
+                    ? "linear-gradient(135deg, #00d4aa, #00a8e8)"
+                    : "rgba(255,255,255,0.04)",
+                color: aoiMode === "map" ? "#000" : "#9090b0",
+                border: aoiMode === "map" ? "none" : "1px solid rgba(255,255,255,0.08)",
+                boxShadow: aoiMode === "map" ? "0 4px 16px rgba(0,212,170,0.2)" : "none",
+              }}
+            >
+              Draw on Map
+            </button>
+
+            <button
+              onClick={() => setAOIMode("geojson")}
+              style={{
+                padding: "0.55rem 1.2rem",
+                fontSize: "0.85rem",
+                background:
+                  aoiMode === "geojson"
+                    ? "linear-gradient(135deg, #00d4aa, #00a8e8)"
+                    : "rgba(255,255,255,0.04)",
+                color: aoiMode === "geojson" ? "#000" : "#9090b0",
+                border: aoiMode === "geojson" ? "none" : "1px solid rgba(255,255,255,0.08)",
+                boxShadow: aoiMode === "geojson" ? "0 4px 16px rgba(0,212,170,0.2)" : "none",
               }}
             >
               Use GeoJSON
             </button>
-            {geojsonError && (
-              <div style={{ marginTop: "0.5rem", color: "red" }}>
-                {geojsonError}
-              </div>
+          </div>
+
+          {aoiMode === "map" && <MapAOI onAOISelect={setAOI} />}
+
+          {aoiMode === "geojson" && (
+            <>
+              <textarea
+                placeholder='Paste GeoJSON Polygon {"type":"Polygon","coordinates":[[[lng,lat],...]]}'
+                value={geojsonInput}
+                onChange={(e) => setGeojsonInput(e.target.value)}
+                style={{
+                  height: "140px",
+                  resize: "vertical",
+                }}
+              />
+              <button
+                style={{ marginTop: "1rem" }}
+                onClick={() => {
+                  try {
+                    setGeojsonError(null);
+                    const parsed = JSON.parse(geojsonInput);
+                    if (
+                      parsed.type === "Polygon" &&
+                      Array.isArray(parsed.coordinates)
+                    ) {
+                      setAOI(parsed.coordinates);
+                    } else {
+                      throw new Error("Invalid GeoJSON Polygon");
+                    }
+                  } catch (err: any) {
+                    setGeojsonError(err.message || "Invalid GeoJSON");
+                  }
+                }}
+              >
+                Parse GeoJSON
+              </button>
+              {geojsonError && (
+                <div
+                  style={{
+                    marginTop: "0.5rem",
+                    color: "#ef4444",
+                    fontSize: "0.85rem",
+                  }}
+                >
+                  {geojsonError}
+                </div>
+              )}
+            </>
+          )}
+
+          <AnimatePresence>
+            {aoi && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                style={{
+                  marginTop: "1rem",
+                  color: "#22c55e",
+                  fontSize: "0.85rem",
+                  fontWeight: 500,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                }}
+              >
+                <span
+                  style={{
+                    width: "8px",
+                    height: "8px",
+                    borderRadius: "50%",
+                    background: "#22c55e",
+                    display: "inline-block",
+                  }}
+                />
+                AOI selected with {aoi[0].length} points
+              </motion.div>
             )}
-          </>
-        )}
+          </AnimatePresence>
+        </motion.div>
 
-        {aoi && (
-          <div style={{ marginTop: "1rem", color: "green" }}>
-            AOI selected with {aoi[0].length} points
-          </div>
-        )}
-      </div>
-
-      <div style={sectionStyle}>
-        <h3 style={{ marginBottom: "1rem" }}>Upload Drone Image (optional)</h3>
-        <input
-          type="file"
-          accept=".tif,.tiff,.jpg,.jpeg"
-          onChange={(e) => setDroneFile(e.target.files?.[0] ?? null)}
-        />
-        <button
-          onClick={handleDroneUpload}
-          disabled={!droneFile}
-          style={{ ...buttonStyle, marginTop: "1rem" }}
+        {/* --- Drone Upload --- */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          viewport={{ once: true }}
+          className="glass-card"
+          style={{ padding: "2rem", marginBottom: "1.5rem" }}
         >
-          Upload
-        </button>
-        {uploadStatus && <div style={{ marginTop: "1rem" }}>{uploadStatus}</div>}
-      </div>
-
-      <div style={sectionStyle}>
-        <h3 style={{ marginBottom: "1rem" }}>Time period</h3>
-        <div style={{ display: "flex", gap: "1rem" }}>
-          <div>
-            <label style={{ display: "block", marginBottom: "0.5rem" }}>Past year</label>
-            <select
-              value={pastYear}
-              onChange={(e) => setPastYear(Number(e.target.value))}
-              style={{ padding: "0.5rem" }}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem",
+              marginBottom: "1.25rem",
+            }}
+          >
+            <span
+              style={{
+                width: "32px",
+                height: "32px",
+                borderRadius: "8px",
+                background: "rgba(34,197,94,0.12)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "1rem",
+              }}
             >
-              {[2010, 2012, 2014, 2016, 2018, 2020].map((y) => (
-                <option key={y} value={y}>{y}</option>
-              ))}
-            </select>
+              🚁
+            </span>
+            <h3 style={{ fontSize: "1.1rem", fontWeight: 700 }}>
+              Drone Image{" "}
+              <span
+                style={{
+                  fontSize: "0.75rem",
+                  fontWeight: 500,
+                  color: "#555577",
+                  marginLeft: "0.5rem",
+                }}
+              >
+                optional
+              </span>
+            </h3>
           </div>
-          <div>
-            <label style={{ display: "block", marginBottom: "0.5rem" }}>Present year</label>
-            <select
-              value={presentYear}
-              onChange={(e) => setPresentYear(Number(e.target.value))}
-              style={{ padding: "0.5rem" }}
-            >
-              {[2020, 2021, 2022, 2023, 2024].map((y) => (
-                <option key={y} value={y}>{y}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </div>
 
-      <div style={sectionStyle}>
-        <button
-          onClick={runAnalysis}
-          disabled={!aoi || loading}
+          <div
+            style={{
+              display: "flex",
+              gap: "1rem",
+              alignItems: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            <label
+              style={{
+                flex: 1,
+                minWidth: "200px",
+                padding: "1.5rem",
+                borderRadius: "12px",
+                border: "2px dashed rgba(255,255,255,0.08)",
+                background: "rgba(255,255,255,0.02)",
+                textAlign: "center",
+                cursor: "pointer",
+                transition: "border-color 0.2s ease",
+                position: "relative",
+              }}
+            >
+              <input
+                type="file"
+                accept=".tif,.tiff,.jpg,.jpeg"
+                onChange={(e) => setDroneFile(e.target.files?.[0] ?? null)}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  opacity: 0,
+                  cursor: "pointer",
+                }}
+              />
+              <div style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>
+                {droneFile ? "📄" : "☁️"}
+              </div>
+              <div
+                style={{
+                  fontSize: "0.85rem",
+                  color: droneFile ? "#e8e8f0" : "#555577",
+                }}
+              >
+                {droneFile
+                  ? droneFile.name
+                  : "Drop .tif / .jpg or click to browse"}
+              </div>
+            </label>
+
+            <button
+              onClick={handleDroneUpload}
+              disabled={!droneFile}
+              style={{
+                padding: "0.65rem 1.5rem",
+                fontSize: "0.85rem",
+              }}
+            >
+              Upload
+            </button>
+          </div>
+
+          <AnimatePresence>
+            {uploadStatus && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                style={{
+                  marginTop: "0.75rem",
+                  fontSize: "0.85rem",
+                  color: uploadStatus.includes("✅")
+                    ? "#22c55e"
+                    : uploadStatus.includes("❌")
+                    ? "#ef4444"
+                    : "#00a8e8",
+                }}
+              >
+                {uploadStatus}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* --- Email Notification --- */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.25 }}
+          viewport={{ once: true }}
+          className="glass-card"
+          style={{ padding: "2rem", marginBottom: "1.5rem" }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem",
+              marginBottom: "1.25rem",
+            }}
+          >
+            <span
+              style={{
+                width: "32px",
+                height: "32px",
+                borderRadius: "8px",
+                background: "rgba(245,158,11,0.12)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "1rem",
+              }}
+            >
+              📧
+            </span>
+            <h3 style={{ fontSize: "1.1rem", fontWeight: 700 }}>
+              Email Notifications
+            </h3>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              gap: "1rem",
+              alignItems: "flex-start",
+              flexWrap: "wrap",
+            }}
+          >
+            <div style={{ flex: 1, minWidth: "250px" }}>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "0.8rem",
+                  color: "#9090b0",
+                  marginBottom: "0.5rem",
+                  fontWeight: 500,
+                }}
+              >
+                Send results to email
+              </label>
+              <input
+                type="email"
+                placeholder="your@email.com"
+                value={notifyEmail}
+                onChange={(e) => setNotifyEmail(e.target.value)}
+                style={{
+                  maxWidth: "400px",
+                }}
+              />
+            </div>
+          </div>
+          <p
+            style={{
+              marginTop: "0.75rem",
+              fontSize: "0.8rem",
+              color: "#555577",
+              lineHeight: 1.5,
+            }}
+          >
+            📬 You&apos;ll receive a rich HTML email with vegetation statistics and
+            change analysis upon completion.
+          </p>
+        </motion.div>
+
+        {/* --- Time Period --- */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          viewport={{ once: true }}
+          className="glass-card"
+          style={{ padding: "2rem", marginBottom: "1.5rem" }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem",
+              marginBottom: "1.25rem",
+            }}
+          >
+            <span
+              style={{
+                width: "32px",
+                height: "32px",
+                borderRadius: "8px",
+                background: "rgba(124,58,237,0.12)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "1rem",
+              }}
+            >
+              📅
+            </span>
+            <h3 style={{ fontSize: "1.1rem", fontWeight: 700 }}>
+              Time Period
+            </h3>
+          </div>
+
+          <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap" }}>
+            <div style={{ flex: 1, minWidth: "150px" }}>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: "0.5rem",
+                  fontSize: "0.8rem",
+                  color: "#9090b0",
+                  fontWeight: 500,
+                }}
+              >
+                Past Year
+              </label>
+              <select
+                value={pastYear}
+                onChange={(e) => setPastYear(Number(e.target.value))}
+              >
+                {[2010, 2012, 2014, 2016, 2018, 2020].map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "flex-end",
+                paddingBottom: "0.6rem",
+                color: "#555577",
+                fontSize: "1.2rem",
+              }}
+            >
+              →
+            </div>
+
+            <div style={{ flex: 1, minWidth: "150px" }}>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: "0.5rem",
+                  fontSize: "0.8rem",
+                  color: "#9090b0",
+                  fontWeight: 500,
+                }}
+              >
+                Present Year
+              </label>
+              <select
+                value={presentYear}
+                onChange={(e) => setPresentYear(Number(e.target.value))}
+              >
+                {[2020, 2021, 2022, 2023, 2024].map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* --- Run Analysis --- */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.35 }}
+          viewport={{ once: true }}
+          className="glass-card"
           style={{
-            ...buttonStyle,
-            background: loading ? "#666" : aoi ? "#000" : "#ccc",
-            cursor: aoi && !loading ? "pointer" : "not-allowed",
+            padding: "2rem",
+            marginBottom: "2rem",
+            textAlign: "center",
           }}
         >
-          {loading ? "Processing..." : "Run analysis"}
-        </button>
+          <motion.button
+            onClick={runAnalysis}
+            disabled={!aoi || loading}
+            whileHover={aoi && !loading ? { scale: 1.03 } : {}}
+            whileTap={aoi && !loading ? { scale: 0.97 } : {}}
+            style={{
+              padding: "0.9rem 3rem",
+              fontSize: "1rem",
+              fontWeight: 700,
+              borderRadius: "12px",
+              background:
+                loading
+                  ? "#2a2a3e"
+                  : aoi
+                  ? "linear-gradient(135deg, #00d4aa, #00a8e8)"
+                  : "#2a2a3e",
+              color: loading || !aoi ? "#555577" : "#000",
+              boxShadow: aoi && !loading ? "0 8px 32px rgba(0,212,170,0.3)" : "none",
+            }}
+          >
+            {loading ? (
+              <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <motion.span
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  style={{ display: "inline-block" }}
+                >
+                  ⏳
+                </motion.span>
+                Processing...
+              </span>
+            ) : (
+              "🔍 Run Analysis"
+            )}
+          </motion.button>
 
-        {progress && <div style={{ marginTop: "1rem", color: "#0066cc" }}>{progress}</div>}
-        {error && <div style={{ marginTop: "1rem", color: "red" }}>{error}</div>}
-      </div>
+          <AnimatePresence>
+            {progress && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                style={{
+                  marginTop: "1rem",
+                  color: "#00a8e8",
+                  fontSize: "0.85rem",
+                  fontWeight: 500,
+                }}
+              >
+                {progress}
+              </motion.div>
+            )}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                style={{
+                  marginTop: "1rem",
+                  color: "#ef4444",
+                  fontSize: "0.85rem",
+                  fontWeight: 500,
+                }}
+              >
+                ❌ {error}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
 
-      {result && aoi && <ResultsPanel result={result} aoi={aoi} apiBase={API_BASE} />}
-    </div>
+        {/* --- Results --- */}
+        <AnimatePresence>
+          {result && aoi && (
+            <ResultsPanel result={result} aoi={aoi} apiBase={API_BASE} />
+          )}
+        </AnimatePresence>
+      </section>
+
+      {/* ========== FOOTER ========== */}
+      <Footer />
+    </>
   );
 }
-
-const containerStyle: React.CSSProperties = {
-  padding: "2rem",
-  maxWidth: "1200px",
-  margin: "0 auto",
-  fontFamily: "system-ui, sans-serif",
-};
-
-const sectionStyle: React.CSSProperties = {
-  marginBottom: "2rem",
-  padding: "1.5rem",
-  background: "#fff",
-  borderRadius: "8px",
-  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-};
-
-const buttonStyle: React.CSSProperties = {
-  padding: "0.75rem 1.5rem",
-  background: "#000",
-  color: "#fff",
-  border: "none",
-  borderRadius: "6px",
-  cursor: "pointer",
-};
-
-const geojsonStyle: React.CSSProperties = {
-  width: "100%",
-  height: "140px",
-  background: "#f7f7f7",
-  color: "#111",
-  padding: "1rem",
-  borderRadius: "8px",
-  border: "1px solid #ddd",
-};

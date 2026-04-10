@@ -8,14 +8,15 @@ const MapAOIClient = dynamic(() => import("./MapAOIClient"), {
     <div
       style={{
         height: "420px",
-        background: "#f0f0f0",
+        background: "rgba(15, 15, 42, 0.5)",
         borderRadius: "14px",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        border: "1px solid rgba(255,255,255,0.06)",
       }}
     >
-      <p>Loading AOI selector...</p>
+      <p style={{ color: "#555577" }}>Loading AOI selector...</p>
     </div>
   ),
 });
