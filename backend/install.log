@@ -1,0 +1,869 @@
+Collecting fastapi==0.115.0 (from -r requirements.txt (line 2))
+  Using cached fastapi-0.115.0-py3-none-any.whl.metadata (27 kB)
+Collecting uvicorn==0.32.0 (from uvicorn[standard]==0.32.0->-r requirements.txt (line 3))
+  Using cached uvicorn-0.32.0-py3-none-any.whl.metadata (6.6 kB)
+Collecting python-multipart==0.0.12 (from -r requirements.txt (line 4))
+  Using cached python_multipart-0.0.12-py3-none-any.whl.metadata (1.9 kB)
+Collecting pydantic==2.10.3 (from -r requirements.txt (line 5))
+  Using cached pydantic-2.10.3-py3-none-any.whl.metadata (172 kB)
+Collecting earthengine-api==1.3.1 (from -r requirements.txt (line 8))
+  Using cached earthengine_api-1.3.1-py3-none-any.whl.metadata (1.8 kB)
+Collecting google-auth==2.36.0 (from -r requirements.txt (line 9))
+  Using cached google_auth-2.36.0-py2.py3-none-any.whl.metadata (4.7 kB)
+Collecting google-auth-oauthlib==1.2.0 (from -r requirements.txt (line 10))
+  Using cached google_auth_oauthlib-1.2.0-py2.py3-none-any.whl.metadata (2.7 kB)
+Collecting rasterio==1.4.3 (from -r requirements.txt (line 13))
+  Using cached rasterio-1.4.3-cp313-cp313-win_amd64.whl.metadata (9.4 kB)
+Collecting shapely==2.0.6 (from -r requirements.txt (line 14))
+  Using cached shapely-2.0.6-cp313-cp313-win_amd64.whl.metadata (7.2 kB)
+Collecting pyproj==3.7.0 (from -r requirements.txt (line 15))
+  Using cached pyproj-3.7.0-cp313-cp313-win_amd64.whl.metadata (31 kB)
+Collecting fiona==1.10.1 (from -r requirements.txt (line 16))
+  Using cached fiona-1.10.1-cp313-cp313-win_amd64.whl.metadata (58 kB)
+Collecting numpy==2.2.1 (from -r requirements.txt (line 19))
+  Using cached numpy-2.2.1-cp313-cp313-win_amd64.whl.metadata (60 kB)
+Collecting opencv-python-headless==4.10.0.84 (from -r requirements.txt (line 20))
+  Using cached opencv_python_headless-4.10.0.84-cp37-abi3-win_amd64.whl.metadata (20 kB)
+Collecting Pillow==11.1.0 (from -r requirements.txt (line 21))
+  Using cached pillow-11.1.0-cp313-cp313-win_amd64.whl.metadata (9.3 kB)
+Collecting matplotlib==3.8.4 (from -r requirements.txt (line 22))
+  Using cached matplotlib-3.8.4.tar.gz (35.9 MB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting python-dotenv==1.0.1 (from -r requirements.txt (line 25))
+  Using cached python_dotenv-1.0.1-py3-none-any.whl.metadata (23 kB)
+Collecting starlette<0.39.0,>=0.37.2 (from fastapi==0.115.0->-r requirements.txt (line 2))
+  Using cached starlette-0.38.6-py3-none-any.whl.metadata (6.0 kB)
+Collecting typing-extensions>=4.8.0 (from fastapi==0.115.0->-r requirements.txt (line 2))
+  Using cached typing_extensions-4.15.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting annotated-types>=0.6.0 (from pydantic==2.10.3->-r requirements.txt (line 5))
+  Using cached annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)
+Collecting pydantic-core==2.27.1 (from pydantic==2.10.3->-r requirements.txt (line 5))
+  Using cached pydantic_core-2.27.1-cp313-none-win_amd64.whl.metadata (6.7 kB)
+Collecting click>=7.0 (from uvicorn==0.32.0->uvicorn[standard]==0.32.0->-r requirements.txt (line 3))
+  Using cached click-8.3.2-py3-none-any.whl.metadata (2.6 kB)
+Collecting h11>=0.8 (from uvicorn==0.32.0->uvicorn[standard]==0.32.0->-r requirements.txt (line 3))
+  Using cached h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+Collecting google-cloud-storage (from earthengine-api==1.3.1->-r requirements.txt (line 8))
+  Using cached google_cloud_storage-3.10.1-py3-none-any.whl.metadata (15 kB)
+Collecting google-api-python-client>=1.12.1 (from earthengine-api==1.3.1->-r requirements.txt (line 8))
+  Using cached google_api_python_client-2.194.0-py3-none-any.whl.metadata (7.0 kB)
+Collecting google-auth-httplib2>=0.0.3 (from earthengine-api==1.3.1->-r requirements.txt (line 8))
+  Using cached google_auth_httplib2-0.3.1-py3-none-any.whl.metadata (3.0 kB)
+Collecting httplib2<1dev,>=0.9.2 (from earthengine-api==1.3.1->-r requirements.txt (line 8))
+  Using cached httplib2-0.31.2-py3-none-any.whl.metadata (2.2 kB)
+Collecting requests (from earthengine-api==1.3.1->-r requirements.txt (line 8))
+  Using cached requests-2.33.1-py3-none-any.whl.metadata (4.8 kB)
+Collecting cachetools<6.0,>=2.0.0 (from google-auth==2.36.0->-r requirements.txt (line 9))
+  Using cached cachetools-5.5.2-py3-none-any.whl.metadata (5.4 kB)
+Collecting pyasn1-modules>=0.2.1 (from google-auth==2.36.0->-r requirements.txt (line 9))
+  Using cached pyasn1_modules-0.4.2-py3-none-any.whl.metadata (3.5 kB)
+Collecting rsa<5,>=3.1.4 (from google-auth==2.36.0->-r requirements.txt (line 9))
+  Using cached rsa-4.9.1-py3-none-any.whl.metadata (5.6 kB)
+Collecting requests-oauthlib>=0.7.0 (from google-auth-oauthlib==1.2.0->-r requirements.txt (line 10))
+  Using cached requests_oauthlib-2.0.0-py2.py3-none-any.whl.metadata (11 kB)
+Collecting affine (from rasterio==1.4.3->-r requirements.txt (line 13))
+  Using cached affine-2.4.0-py3-none-any.whl.metadata (4.0 kB)
+Collecting attrs (from rasterio==1.4.3->-r requirements.txt (line 13))
+  Using cached attrs-26.1.0-py3-none-any.whl.metadata (8.8 kB)
+Collecting certifi (from rasterio==1.4.3->-r requirements.txt (line 13))
+  Using cached certifi-2026.2.25-py3-none-any.whl.metadata (2.5 kB)
+Collecting cligj>=0.5 (from rasterio==1.4.3->-r requirements.txt (line 13))
+  Using cached cligj-0.7.2-py3-none-any.whl.metadata (5.0 kB)
+Collecting click-plugins (from rasterio==1.4.3->-r requirements.txt (line 13))
+  Using cached click_plugins-1.1.1.2-py2.py3-none-any.whl.metadata (6.5 kB)
+Collecting pyparsing (from rasterio==1.4.3->-r requirements.txt (line 13))
+  Using cached pyparsing-3.3.2-py3-none-any.whl.metadata (5.8 kB)
+Collecting contourpy>=1.0.1 (from matplotlib==3.8.4->-r requirements.txt (line 22))
+  Using cached contourpy-1.3.3-cp313-cp313-win_amd64.whl.metadata (5.5 kB)
+Collecting cycler>=0.10 (from matplotlib==3.8.4->-r requirements.txt (line 22))
+  Using cached cycler-0.12.1-py3-none-any.whl.metadata (3.8 kB)
+Collecting fonttools>=4.22.0 (from matplotlib==3.8.4->-r requirements.txt (line 22))
+  Using cached fonttools-4.62.1-cp313-cp313-win_amd64.whl.metadata (119 kB)
+Collecting kiwisolver>=1.3.1 (from matplotlib==3.8.4->-r requirements.txt (line 22))
+  Using cached kiwisolver-1.5.0-cp313-cp313-win_amd64.whl.metadata (5.2 kB)
+Collecting packaging>=20.0 (from matplotlib==3.8.4->-r requirements.txt (line 22))
+  Using cached packaging-26.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting python-dateutil>=2.7 (from matplotlib==3.8.4->-r requirements.txt (line 22))
+  Using cached python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+Collecting colorama>=0.4 (from uvicorn[standard]==0.32.0->-r requirements.txt (line 3))
+  Using cached colorama-0.4.6-py2.py3-none-any.whl.metadata (17 kB)
+Collecting httptools>=0.5.0 (from uvicorn[standard]==0.32.0->-r requirements.txt (line 3))
+  Using cached httptools-0.7.1-cp313-cp313-win_amd64.whl.metadata (3.6 kB)
+Collecting pyyaml>=5.1 (from uvicorn[standard]==0.32.0->-r requirements.txt (line 3))
+  Using cached pyyaml-6.0.3-cp313-cp313-win_amd64.whl.metadata (2.4 kB)
+Collecting watchfiles>=0.13 (from uvicorn[standard]==0.32.0->-r requirements.txt (line 3))
+  Using cached watchfiles-1.1.1-cp313-cp313-win_amd64.whl.metadata (5.0 kB)
+Collecting websockets>=10.4 (from uvicorn[standard]==0.32.0->-r requirements.txt (line 3))
+  Using cached websockets-16.0-cp313-cp313-win_amd64.whl.metadata (7.0 kB)
+Collecting pyasn1>=0.1.3 (from rsa<5,>=3.1.4->google-auth==2.36.0->-r requirements.txt (line 9))
+  Using cached pyasn1-0.6.3-py3-none-any.whl.metadata (8.4 kB)
+Collecting anyio<5,>=3.4.0 (from starlette<0.39.0,>=0.37.2->fastapi==0.115.0->-r requirements.txt (line 2))
+  Using cached anyio-4.13.0-py3-none-any.whl.metadata (4.5 kB)
+Collecting idna>=2.8 (from anyio<5,>=3.4.0->starlette<0.39.0,>=0.37.2->fastapi==0.115.0->-r requirements.txt (line 2))
+  Using cached idna-3.11-py3-none-any.whl.metadata (8.4 kB)
+Collecting google-api-core!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.0,<3.0.0,>=1.31.5 (from google-api-python-client>=1.12.1->earthengine-api==1.3.1->-r requirements.txt (line 8))
+  Using cached google_api_core-2.30.3-py3-none-any.whl.metadata (3.1 kB)
+Collecting uritemplate<5,>=3.0.1 (from google-api-python-client>=1.12.1->earthengine-api==1.3.1->-r requirements.txt (line 8))
+  Using cached uritemplate-4.2.0-py3-none-any.whl.metadata (2.6 kB)
+Collecting googleapis-common-protos<2.0.0,>=1.63.2 (from google-api-core!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.0,<3.0.0,>=1.31.5->google-api-python-client>=1.12.1->earthengine-api==1.3.1->-r requirements.txt (line 8))
+  Using cached googleapis_common_protos-1.74.0-py3-none-any.whl.metadata (9.2 kB)
+Collecting protobuf<8.0.0,>=4.25.8 (from google-api-core!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.0,<3.0.0,>=1.31.5->google-api-python-client>=1.12.1->earthengine-api==1.3.1->-r requirements.txt (line 8))
+  Using cached protobuf-7.34.1-cp310-abi3-win_amd64.whl.metadata (595 bytes)
+Collecting proto-plus<2.0.0,>=1.22.3 (from google-api-core!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.0,<3.0.0,>=1.31.5->google-api-python-client>=1.12.1->earthengine-api==1.3.1->-r requirements.txt (line 8))
+  Using cached proto_plus-1.27.2-py3-none-any.whl.metadata (2.2 kB)
+Collecting charset_normalizer<4,>=2 (from requests->earthengine-api==1.3.1->-r requirements.txt (line 8))
+  Using cached charset_normalizer-3.4.7-cp313-cp313-win_amd64.whl.metadata (41 kB)
+Collecting urllib3<3,>=1.26 (from requests->earthengine-api==1.3.1->-r requirements.txt (line 8))
+  Using cached urllib3-2.6.3-py3-none-any.whl.metadata (6.9 kB)
+Collecting six>=1.5 (from python-dateutil>=2.7->matplotlib==3.8.4->-r requirements.txt (line 22))
+  Using cached six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+Collecting oauthlib>=3.0.0 (from requests-oauthlib>=0.7.0->google-auth-oauthlib==1.2.0->-r requirements.txt (line 10))
+  Using cached oauthlib-3.3.1-py3-none-any.whl.metadata (7.9 kB)
+Collecting google-cloud-core<3.0.0,>=2.4.2 (from google-cloud-storage->earthengine-api==1.3.1->-r requirements.txt (line 8))
+  Using cached google_cloud_core-2.5.1-py3-none-any.whl.metadata (2.8 kB)
+Collecting google-resumable-media<3.0.0,>=2.7.2 (from google-cloud-storage->earthengine-api==1.3.1->-r requirements.txt (line 8))
+  Using cached google_resumable_media-2.8.2-py3-none-any.whl.metadata (2.2 kB)
+Collecting google-crc32c<2.0.0,>=1.1.3 (from google-cloud-storage->earthengine-api==1.3.1->-r requirements.txt (line 8))
+  Using cached google_crc32c-1.8.0-cp313-cp313-win_amd64.whl.metadata (1.8 kB)
+Using cached fastapi-0.115.0-py3-none-any.whl (94 kB)
+Using cached pydantic-2.10.3-py3-none-any.whl (456 kB)
+Using cached uvicorn-0.32.0-py3-none-any.whl (63 kB)
+Using cached python_multipart-0.0.12-py3-none-any.whl (23 kB)
+Using cached earthengine_api-1.3.1-py3-none-any.whl (456 kB)
+Using cached google_auth-2.36.0-py2.py3-none-any.whl (209 kB)
+Using cached google_auth_oauthlib-1.2.0-py2.py3-none-any.whl (24 kB)
+Using cached rasterio-1.4.3-cp313-cp313-win_amd64.whl (25.4 MB)
+Using cached shapely-2.0.6-cp313-cp313-win_amd64.whl (1.4 MB)
+Using cached numpy-2.2.1-cp313-cp313-win_amd64.whl (12.6 MB)
+Using cached pyproj-3.7.0-cp313-cp313-win_amd64.whl (6.2 MB)
+Using cached fiona-1.10.1-cp313-cp313-win_amd64.whl (24.5 MB)
+Using cached opencv_python_headless-4.10.0.84-cp37-abi3-win_amd64.whl (38.8 MB)
+Using cached pillow-11.1.0-cp313-cp313-win_amd64.whl (2.6 MB)
+Using cached python_dotenv-1.0.1-py3-none-any.whl (19 kB)
+Using cached pydantic_core-2.27.1-cp313-none-win_amd64.whl (2.0 MB)
+Using cached cachetools-5.5.2-py3-none-any.whl (10 kB)
+Using cached click-8.3.2-py3-none-any.whl (108 kB)
+Using cached httplib2-0.31.2-py3-none-any.whl (91 kB)
+Using cached pyparsing-3.3.2-py3-none-any.whl (122 kB)
+Using cached rsa-4.9.1-py3-none-any.whl (34 kB)
+Using cached starlette-0.38.6-py3-none-any.whl (71 kB)
+Using cached anyio-4.13.0-py3-none-any.whl (114 kB)
+Using cached annotated_types-0.7.0-py3-none-any.whl (13 kB)
+Using cached attrs-26.1.0-py3-none-any.whl (67 kB)
+Using cached click_plugins-1.1.1.2-py2.py3-none-any.whl (11 kB)
+Using cached cligj-0.7.2-py3-none-any.whl (7.1 kB)
+Using cached colorama-0.4.6-py2.py3-none-any.whl (25 kB)
+Using cached contourpy-1.3.3-cp313-cp313-win_amd64.whl (226 kB)
+Using cached cycler-0.12.1-py3-none-any.whl (8.3 kB)
+Using cached fonttools-4.62.1-cp313-cp313-win_amd64.whl (2.3 MB)
+Using cached google_api_python_client-2.194.0-py3-none-any.whl (15.0 MB)
+Using cached google_api_core-2.30.3-py3-none-any.whl (173 kB)
+Using cached google_auth_httplib2-0.3.1-py3-none-any.whl (9.5 kB)
+Using cached googleapis_common_protos-1.74.0-py3-none-any.whl (300 kB)
+Using cached proto_plus-1.27.2-py3-none-any.whl (50 kB)
+Using cached protobuf-7.34.1-cp310-abi3-win_amd64.whl (437 kB)
+Using cached requests-2.33.1-py3-none-any.whl (64 kB)
+Using cached charset_normalizer-3.4.7-cp313-cp313-win_amd64.whl (158 kB)
+Using cached idna-3.11-py3-none-any.whl (71 kB)
+Using cached uritemplate-4.2.0-py3-none-any.whl (11 kB)
+Using cached urllib3-2.6.3-py3-none-any.whl (131 kB)
+Using cached certifi-2026.2.25-py3-none-any.whl (153 kB)
+Using cached h11-0.16.0-py3-none-any.whl (37 kB)
+Using cached httptools-0.7.1-cp313-cp313-win_amd64.whl (85 kB)
+Using cached kiwisolver-1.5.0-cp313-cp313-win_amd64.whl (73 kB)
+Using cached packaging-26.0-py3-none-any.whl (74 kB)
+Using cached pyasn1-0.6.3-py3-none-any.whl (83 kB)
+Using cached pyasn1_modules-0.4.2-py3-none-any.whl (181 kB)
+Using cached python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+Using cached pyyaml-6.0.3-cp313-cp313-win_amd64.whl (154 kB)
+Using cached requests_oauthlib-2.0.0-py2.py3-none-any.whl (24 kB)
+Using cached oauthlib-3.3.1-py3-none-any.whl (160 kB)
+Using cached six-1.17.0-py2.py3-none-any.whl (11 kB)
+Using cached typing_extensions-4.15.0-py3-none-any.whl (44 kB)
+Using cached watchfiles-1.1.1-cp313-cp313-win_amd64.whl (288 kB)
+Using cached websockets-16.0-cp313-cp313-win_amd64.whl (178 kB)
+Using cached affine-2.4.0-py3-none-any.whl (15 kB)
+Using cached google_cloud_storage-3.10.1-py3-none-any.whl (324 kB)
+Using cached google_cloud_core-2.5.1-py3-none-any.whl (29 kB)
+Using cached google_crc32c-1.8.0-cp313-cp313-win_amd64.whl (34 kB)
+Using cached google_resumable_media-2.8.2-py3-none-any.whl (81 kB)
+Building wheels for collected packages: matplotlib
+  Building wheel for matplotlib (pyproject.toml): started
+  Building wheel for matplotlib (pyproject.toml): finished with status 'error'
+  error: subprocess-exited-with-error
+  
+  Building wheel for matplotlib (pyproject.toml) did not run successfully.
+  exit code: 1
+  
+  [656 lines of output]
+  C:\Users\shiva\AppData\Local\Temp\pip-build-env-8crodndp\overlay\Lib\site-packages\vcs_versioning\_backends\_git.py:474: UserWarning: git archive did not support describe output
+    return archival_to_version(data, config=config)
+  C:\Users\shiva\AppData\Local\Temp\pip-build-env-8crodndp\overlay\Lib\site-packages\vcs_versioning\_backends\_git.py:474: UserWarning: unprocessed git archival found (no export subst applied)
+    return archival_to_version(data, config=config)
+  C:\Users\shiva\AppData\Local\Temp\pip-build-env-8crodndp\overlay\Lib\site-packages\setuptools_scm\_integration\version_inference.py:151: UserWarning: version of matplotlib already set
+    warnings.warn(f"version of {self.dist_name} already set")
+  C:\Users\shiva\AppData\Local\Temp\pip-build-env-8crodndp\overlay\Lib\site-packages\setuptools\dist.py:765: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+  !!
+  
+          ********************************************************************************
+          Please consider removing the following classifiers in favor of a SPDX license expression:
+  
+          License :: OSI Approved :: Python Software Foundation License
+  
+          See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+          ********************************************************************************
+  
+  !!
+    self._finalize_license_expression()
+  
+  Edit mplsetup.cfg to change the build options; suppress output with --quiet.
+  
+  BUILDING MATPLOTLIB
+        python: yes [3.13.7 (tags/v3.13.7:bcee1c3, Aug 14 2025, 14:15:11) [MSC
+                    v.1944 64 bit (AMD64)]]
+      platform: yes [win32]
+         tests: no  [skipping due to configuration]
+        macosx: no  [Mac OS-X only]
+  
+  running bdist_wheel
+  running build
+  running build_py
+  creating build\lib.win-amd64-cpython-313
+  copying lib\pylab.py -> build\lib.win-amd64-cpython-313
+  creating build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\animation.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\artist.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\axis.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\backend_bases.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\backend_managers.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\backend_tools.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\bezier.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\category.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\cbook.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\cm.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\collections.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\colorbar.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\colors.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\container.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\contour.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\dates.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\dviread.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\figure.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\font_manager.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\gridspec.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\hatch.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\image.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\layout_engine.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\legend.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\legend_handler.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\lines.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\markers.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\mathtext.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\mlab.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\offsetbox.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\patches.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\path.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\patheffects.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\pylab.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\pyplot.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\quiver.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\rcsetup.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\sankey.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\scale.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\spines.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\stackplot.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\streamplot.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\table.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\texmanager.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\text.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\textpath.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\ticker.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\transforms.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\typing.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\units.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\widgets.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_afm.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_animation_data.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_blocking_input.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_cm.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_cm_listed.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_color_data.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_constrained_layout.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_docstring.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_enums.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_fontconfig_pattern.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_internal_utils.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_layoutgrid.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_mathtext.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_mathtext_data.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_pylab_helpers.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_text_helpers.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_tight_bbox.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_tight_layout.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_type1font.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_version.py -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\__init__.py -> build\lib.win-amd64-cpython-313\matplotlib
+  creating build\lib.win-amd64-cpython-313\matplotlib\axes
+  copying lib\matplotlib\axes\_axes.py -> build\lib.win-amd64-cpython-313\matplotlib\axes
+  copying lib\matplotlib\axes\_base.py -> build\lib.win-amd64-cpython-313\matplotlib\axes
+  copying lib\matplotlib\axes\_secondary_axes.py -> build\lib.win-amd64-cpython-313\matplotlib\axes
+  copying lib\matplotlib\axes\__init__.py -> build\lib.win-amd64-cpython-313\matplotlib\axes
+  creating build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_agg.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_cairo.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_gtk3.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_gtk3agg.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_gtk3cairo.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_gtk4.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_gtk4agg.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_gtk4cairo.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_macosx.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_mixed.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_nbagg.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_pdf.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_pgf.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_ps.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_qt.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_qt5.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_qt5agg.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_qt5cairo.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_qtagg.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_qtcairo.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_svg.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_template.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_tkagg.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_tkcairo.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_webagg.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_webagg_core.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_wx.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_wxagg.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\backend_wxcairo.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\qt_compat.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\_backend_gtk.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\_backend_pdf_ps.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\_backend_tk.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\__init__.py -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  creating build\lib.win-amd64-cpython-313\matplotlib\projections
+  copying lib\matplotlib\projections\geo.py -> build\lib.win-amd64-cpython-313\matplotlib\projections
+  copying lib\matplotlib\projections\polar.py -> build\lib.win-amd64-cpython-313\matplotlib\projections
+  copying lib\matplotlib\projections\__init__.py -> build\lib.win-amd64-cpython-313\matplotlib\projections
+  creating build\lib.win-amd64-cpython-313\matplotlib\sphinxext
+  copying lib\matplotlib\sphinxext\figmpl_directive.py -> build\lib.win-amd64-cpython-313\matplotlib\sphinxext
+  copying lib\matplotlib\sphinxext\mathmpl.py -> build\lib.win-amd64-cpython-313\matplotlib\sphinxext
+  copying lib\matplotlib\sphinxext\plot_directive.py -> build\lib.win-amd64-cpython-313\matplotlib\sphinxext
+  copying lib\matplotlib\sphinxext\__init__.py -> build\lib.win-amd64-cpython-313\matplotlib\sphinxext
+  creating build\lib.win-amd64-cpython-313\matplotlib\style
+  copying lib\matplotlib\style\core.py -> build\lib.win-amd64-cpython-313\matplotlib\style
+  copying lib\matplotlib\style\__init__.py -> build\lib.win-amd64-cpython-313\matplotlib\style
+  creating build\lib.win-amd64-cpython-313\matplotlib\testing
+  copying lib\matplotlib\testing\compare.py -> build\lib.win-amd64-cpython-313\matplotlib\testing
+  copying lib\matplotlib\testing\conftest.py -> build\lib.win-amd64-cpython-313\matplotlib\testing
+  copying lib\matplotlib\testing\decorators.py -> build\lib.win-amd64-cpython-313\matplotlib\testing
+  copying lib\matplotlib\testing\exceptions.py -> build\lib.win-amd64-cpython-313\matplotlib\testing
+  copying lib\matplotlib\testing\widgets.py -> build\lib.win-amd64-cpython-313\matplotlib\testing
+  copying lib\matplotlib\testing\_markers.py -> build\lib.win-amd64-cpython-313\matplotlib\testing
+  copying lib\matplotlib\testing\__init__.py -> build\lib.win-amd64-cpython-313\matplotlib\testing
+  creating build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\conftest.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_afm.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_agg.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_agg_filter.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_animation.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_api.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_arrow_patches.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_artist.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_axes.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_axis.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_backends_interactive.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_backend_bases.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_backend_cairo.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_backend_gtk3.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_backend_macosx.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_backend_nbagg.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_backend_pdf.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_backend_pgf.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_backend_ps.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_backend_qt.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_backend_svg.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_backend_template.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_backend_tk.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_backend_tools.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_backend_webagg.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_basic.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_bbox_tight.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_bezier.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_category.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_cbook.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_collections.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_colorbar.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_colors.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_compare_images.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_constrainedlayout.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_container.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_contour.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_cycles.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_dates.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_determinism.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_doc.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_dviread.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_figure.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_fontconfig_pattern.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_font_manager.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_ft2font.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_getattr.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_gridspec.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_image.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_legend.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_lines.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_marker.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_mathtext.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_matplotlib.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_mlab.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_offsetbox.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_patches.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_path.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_patheffects.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_pickle.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_png.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_polar.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_preprocess_data.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_pyplot.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_quiver.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_rcparams.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_sankey.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_scale.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_simplification.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_skew.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_sphinxext.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_spines.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_streamplot.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_style.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_subplots.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_table.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_testing.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_texmanager.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_text.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_textpath.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_ticker.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_tightlayout.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_transforms.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_triangulation.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_ttconv.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_type1font.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_units.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_usetex.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\test_widgets.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  copying lib\matplotlib\tests\__init__.py -> build\lib.win-amd64-cpython-313\matplotlib\tests
+  creating build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\triangulation.py -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\tricontour.py -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\trifinder.py -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\triinterpolate.py -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\tripcolor.py -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\triplot.py -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\trirefine.py -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\tritools.py -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\_triangulation.py -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\_tricontour.py -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\_trifinder.py -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\_triinterpolate.py -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\_tripcolor.py -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\_triplot.py -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\_trirefine.py -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\_tritools.py -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\__init__.py -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  creating build\lib.win-amd64-cpython-313\matplotlib\_api
+  copying lib\matplotlib\_api\deprecation.py -> build\lib.win-amd64-cpython-313\matplotlib\_api
+  copying lib\matplotlib\_api\__init__.py -> build\lib.win-amd64-cpython-313\matplotlib\_api
+  creating build\lib.win-amd64-cpython-313\matplotlib\backends\qt_editor
+  copying lib\matplotlib\backends\qt_editor\figureoptions.py -> build\lib.win-amd64-cpython-313\matplotlib\backends\qt_editor
+  copying lib\matplotlib\backends\qt_editor\_formlayout.py -> build\lib.win-amd64-cpython-313\matplotlib\backends\qt_editor
+  copying lib\matplotlib\backends\qt_editor\__init__.py -> build\lib.win-amd64-cpython-313\matplotlib\backends\qt_editor
+  creating build\lib.win-amd64-cpython-313\matplotlib\testing\jpl_units
+  copying lib\matplotlib\testing\jpl_units\Duration.py -> build\lib.win-amd64-cpython-313\matplotlib\testing\jpl_units
+  copying lib\matplotlib\testing\jpl_units\Epoch.py -> build\lib.win-amd64-cpython-313\matplotlib\testing\jpl_units
+  copying lib\matplotlib\testing\jpl_units\EpochConverter.py -> build\lib.win-amd64-cpython-313\matplotlib\testing\jpl_units
+  copying lib\matplotlib\testing\jpl_units\StrConverter.py -> build\lib.win-amd64-cpython-313\matplotlib\testing\jpl_units
+  copying lib\matplotlib\testing\jpl_units\UnitDbl.py -> build\lib.win-amd64-cpython-313\matplotlib\testing\jpl_units
+  copying lib\matplotlib\testing\jpl_units\UnitDblConverter.py -> build\lib.win-amd64-cpython-313\matplotlib\testing\jpl_units
+  copying lib\matplotlib\testing\jpl_units\UnitDblFormatter.py -> build\lib.win-amd64-cpython-313\matplotlib\testing\jpl_units
+  copying lib\matplotlib\testing\jpl_units\__init__.py -> build\lib.win-amd64-cpython-313\matplotlib\testing\jpl_units
+  creating build\lib.win-amd64-cpython-313\mpl_toolkits\axes_grid1
+  copying lib\mpl_toolkits\axes_grid1\anchored_artists.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axes_grid1
+  copying lib\mpl_toolkits\axes_grid1\axes_divider.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axes_grid1
+  copying lib\mpl_toolkits\axes_grid1\axes_grid.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axes_grid1
+  copying lib\mpl_toolkits\axes_grid1\axes_rgb.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axes_grid1
+  copying lib\mpl_toolkits\axes_grid1\axes_size.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axes_grid1
+  copying lib\mpl_toolkits\axes_grid1\inset_locator.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axes_grid1
+  copying lib\mpl_toolkits\axes_grid1\mpl_axes.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axes_grid1
+  copying lib\mpl_toolkits\axes_grid1\parasite_axes.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axes_grid1
+  copying lib\mpl_toolkits\axes_grid1\__init__.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axes_grid1
+  creating build\lib.win-amd64-cpython-313\mpl_toolkits\axisartist
+  copying lib\mpl_toolkits\axisartist\angle_helper.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axisartist
+  copying lib\mpl_toolkits\axisartist\axes_divider.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axisartist
+  copying lib\mpl_toolkits\axisartist\axes_grid.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axisartist
+  copying lib\mpl_toolkits\axisartist\axes_rgb.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axisartist
+  copying lib\mpl_toolkits\axisartist\axislines.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axisartist
+  copying lib\mpl_toolkits\axisartist\axisline_style.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axisartist
+  copying lib\mpl_toolkits\axisartist\axis_artist.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axisartist
+  copying lib\mpl_toolkits\axisartist\floating_axes.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axisartist
+  copying lib\mpl_toolkits\axisartist\grid_finder.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axisartist
+  copying lib\mpl_toolkits\axisartist\grid_helper_curvelinear.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axisartist
+  copying lib\mpl_toolkits\axisartist\parasite_axes.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axisartist
+  copying lib\mpl_toolkits\axisartist\__init__.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axisartist
+  creating build\lib.win-amd64-cpython-313\mpl_toolkits\mplot3d
+  copying lib\mpl_toolkits\mplot3d\art3d.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\mplot3d
+  copying lib\mpl_toolkits\mplot3d\axes3d.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\mplot3d
+  copying lib\mpl_toolkits\mplot3d\axis3d.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\mplot3d
+  copying lib\mpl_toolkits\mplot3d\proj3d.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\mplot3d
+  copying lib\mpl_toolkits\mplot3d\__init__.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\mplot3d
+  creating build\lib.win-amd64-cpython-313\mpl_toolkits\axes_grid1\tests
+  copying lib\mpl_toolkits\axes_grid1\tests\conftest.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axes_grid1\tests
+  copying lib\mpl_toolkits\axes_grid1\tests\test_axes_grid1.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axes_grid1\tests
+  copying lib\mpl_toolkits\axes_grid1\tests\__init__.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axes_grid1\tests
+  creating build\lib.win-amd64-cpython-313\mpl_toolkits\axisartist\tests
+  copying lib\mpl_toolkits\axisartist\tests\conftest.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axisartist\tests
+  copying lib\mpl_toolkits\axisartist\tests\test_angle_helper.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axisartist\tests
+  copying lib\mpl_toolkits\axisartist\tests\test_axislines.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axisartist\tests
+  copying lib\mpl_toolkits\axisartist\tests\test_axis_artist.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axisartist\tests
+  copying lib\mpl_toolkits\axisartist\tests\test_floating_axes.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axisartist\tests
+  copying lib\mpl_toolkits\axisartist\tests\test_grid_finder.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axisartist\tests
+  copying lib\mpl_toolkits\axisartist\tests\test_grid_helper_curvelinear.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axisartist\tests
+  copying lib\mpl_toolkits\axisartist\tests\__init__.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\axisartist\tests
+  creating build\lib.win-amd64-cpython-313\mpl_toolkits\mplot3d\tests
+  copying lib\mpl_toolkits\mplot3d\tests\conftest.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\mplot3d\tests
+  copying lib\mpl_toolkits\mplot3d\tests\test_art3d.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\mplot3d\tests
+  copying lib\mpl_toolkits\mplot3d\tests\test_axes3d.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\mplot3d\tests
+  copying lib\mpl_toolkits\mplot3d\tests\test_legend3d.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\mplot3d\tests
+  copying lib\mpl_toolkits\mplot3d\tests\__init__.py -> build\lib.win-amd64-cpython-313\mpl_toolkits\mplot3d\tests
+  copying lib\matplotlib\animation.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\artist.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\axis.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\backend_bases.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\backend_managers.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\backend_tools.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\bezier.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\cbook.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\cm.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\collections.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\colorbar.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\colors.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\container.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\contour.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\dviread.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\figure.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\font_manager.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\ft2font.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\gridspec.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\hatch.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\image.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\layout_engine.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\legend.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\legend_handler.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\lines.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\markers.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\mathtext.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\mlab.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\offsetbox.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\patches.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\path.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\patheffects.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\quiver.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\rcsetup.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\sankey.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\scale.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\spines.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\stackplot.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\streamplot.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\table.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\texmanager.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\text.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\textpath.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\ticker.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\transforms.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\widgets.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_color_data.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_c_internal_utils.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_docstring.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_enums.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_image.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_path.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_pylab_helpers.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_qhull.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_tri.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\_ttconv.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\__init__.pyi -> build\lib.win-amd64-cpython-313\matplotlib
+  copying lib\matplotlib\py.typed -> build\lib.win-amd64-cpython-313\matplotlib
+  creating build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\mpl-data\stylelib\ggplot.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\mpl-data\stylelib\tableau-colorblind10.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  creating build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\pdfcorefonts
+  copying lib\matplotlib\mpl-data\fonts\pdfcorefonts\Courier-BoldOblique.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\pdfcorefonts
+  creating build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\afm\pncb8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\pdfcorefonts\Courier-Oblique.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\pdfcorefonts
+  creating build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\images\back.pdf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\stylelib\_mpl-gallery-nogrid.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\mpl-data\fonts\afm\cmtt10.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\afm\phvbo8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\pdfcorefonts\Helvetica-Oblique.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\pdfcorefonts
+  copying lib\matplotlib\mpl-data\images\forward-symbolic.svg -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\fonts\afm\phvro8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\images\matplotlib.pdf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  creating build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\fonts\ttf\STIXSizOneSymBol.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\fonts\afm\pcrb8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\stylelib\seaborn-v0_8-dark-palette.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\mpl-data\stylelib\seaborn-v0_8-deep.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  creating build\lib.win-amd64-cpython-313\matplotlib\backends\web_backend
+  copying lib\matplotlib\backends\web_backend\.prettierrc -> build\lib.win-amd64-cpython-313\matplotlib\backends\web_backend
+  copying lib\matplotlib\mpl-data\fonts\pdfcorefonts\Helvetica.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\pdfcorefonts
+  copying lib\matplotlib\mpl-data\fonts\afm\pbkd8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\afm\pbkl8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\images\back.png -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\stylelib\seaborn-v0_8-poster.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\backends\web_backend\nbagg_uat.ipynb -> build\lib.win-amd64-cpython-313\matplotlib\backends\web_backend
+  copying lib\matplotlib\mpl-data\fonts\ttf\LICENSE_DEJAVU -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\stylelib\seaborn-v0_8-pastel.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\mpl-data\fonts\pdfcorefonts\Times-BoldItalic.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\pdfcorefonts
+  copying lib\matplotlib\mpl-data\fonts\ttf\STIXGeneralBol.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\images\zoom_to_rect.pdf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\fonts\ttf\DejaVuSans-Bold.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\images\hand.png -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\images\home_large.png -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\fonts\ttf\DejaVuSansMono-Oblique.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  creating build\lib.win-amd64-cpython-313\matplotlib\backends\web_backend\css
+  copying lib\matplotlib\backends\web_backend\css\page.css -> build\lib.win-amd64-cpython-313\matplotlib\backends\web_backend\css
+  copying lib\matplotlib\mpl-data\images\zoom_to_rect.svg -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\images\move-symbolic.svg -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\images\help.pdf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\axes\_axes.pyi -> build\lib.win-amd64-cpython-313\matplotlib\axes
+  copying lib\matplotlib\axes\_base.pyi -> build\lib.win-amd64-cpython-313\matplotlib\axes
+  copying lib\matplotlib\axes\_secondary_axes.pyi -> build\lib.win-amd64-cpython-313\matplotlib\axes
+  copying lib\matplotlib\axes\__init__.pyi -> build\lib.win-amd64-cpython-313\matplotlib\axes
+  copying lib\matplotlib\backends\_backend_agg.pyi -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\_macosx.pyi -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\backends\_tkagg.pyi -> build\lib.win-amd64-cpython-313\matplotlib\backends
+  copying lib\matplotlib\projections\geo.pyi -> build\lib.win-amd64-cpython-313\matplotlib\projections
+  copying lib\matplotlib\projections\polar.pyi -> build\lib.win-amd64-cpython-313\matplotlib\projections
+  copying lib\matplotlib\projections\__init__.pyi -> build\lib.win-amd64-cpython-313\matplotlib\projections
+  copying lib\matplotlib\style\core.pyi -> build\lib.win-amd64-cpython-313\matplotlib\style
+  copying lib\matplotlib\testing\compare.pyi -> build\lib.win-amd64-cpython-313\matplotlib\testing
+  copying lib\matplotlib\testing\conftest.pyi -> build\lib.win-amd64-cpython-313\matplotlib\testing
+  copying lib\matplotlib\testing\decorators.pyi -> build\lib.win-amd64-cpython-313\matplotlib\testing
+  copying lib\matplotlib\testing\widgets.pyi -> build\lib.win-amd64-cpython-313\matplotlib\testing
+  copying lib\matplotlib\testing\__init__.pyi -> build\lib.win-amd64-cpython-313\matplotlib\testing
+  copying lib\matplotlib\tri\_triangulation.pyi -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\_tricontour.pyi -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\_trifinder.pyi -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\_triinterpolate.pyi -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\_tripcolor.pyi -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\_triplot.pyi -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\_trirefine.pyi -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\tri\_tritools.pyi -> build\lib.win-amd64-cpython-313\matplotlib\tri
+  copying lib\matplotlib\_api\deprecation.pyi -> build\lib.win-amd64-cpython-313\matplotlib\_api
+  copying lib\matplotlib\_api\__init__.pyi -> build\lib.win-amd64-cpython-313\matplotlib\_api
+  copying lib\matplotlib\backends\web_backend\package.json -> build\lib.win-amd64-cpython-313\matplotlib\backends\web_backend
+  copying lib\matplotlib\mpl-data\images\subplots.svg -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\stylelib\fivethirtyeight.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\mpl-data\images\forward.svg -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\images\filesave.svg -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\stylelib\seaborn-v0_8-whitegrid.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\mpl-data\fonts\afm\pncr8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\ttf\STIXSizThreeSymReg.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\fonts\afm\ptmri8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\images\qt4_editor_options.svg -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\fonts\afm\ptmb8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\ttf\DejaVuSerif.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\images\forward_large.png -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\fonts\afm\pbkli8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\images\hand.pdf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\fonts\ttf\cmr10.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\fonts\ttf\STIXNonUniBolIta.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\fonts\ttf\STIXSizFiveSymReg.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\fonts\pdfcorefonts\readme.txt -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\pdfcorefonts
+  copying lib\matplotlib\mpl-data\fonts\afm\pplb8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\images\subplots-symbolic.svg -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\fonts\afm\pcrr8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\images\help.png -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\images\forward.png -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\images\matplotlib_large.png -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\images\qt4_editor_options_large.png -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\images\subplots.pdf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\matplotlibrc -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data
+  copying lib\matplotlib\mpl-data\fonts\afm\pcrbo8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  creating build\lib.win-amd64-cpython-313\matplotlib\backends\web_backend\js
+  copying lib\matplotlib\backends\web_backend\js\nbagg_mpl.js -> build\lib.win-amd64-cpython-313\matplotlib\backends\web_backend\js
+  copying lib\matplotlib\mpl-data\fonts\afm\cmsy10.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  creating build\lib.win-amd64-cpython-313\matplotlib\mpl-data\sample_data
+  copying lib\matplotlib\mpl-data\sample_data\embedding_in_wx3.xrc -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\sample_data
+  copying lib\matplotlib\mpl-data\stylelib\_classic_test_patch.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\mpl-data\fonts\pdfcorefonts\Courier.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\pdfcorefonts
+  copying lib\matplotlib\mpl-data\fonts\pdfcorefonts\Times-Roman.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\pdfcorefonts
+  copying lib\matplotlib\mpl-data\fonts\pdfcorefonts\Symbol.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\pdfcorefonts
+  copying lib\matplotlib\mpl-data\stylelib\seaborn-v0_8-darkgrid.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\mpl-data\fonts\ttf\DejaVuSerif-BoldItalic.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\fonts\pdfcorefonts\ZapfDingbats.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\pdfcorefonts
+  copying lib\matplotlib\mpl-data\stylelib\classic.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\mpl-data\fonts\afm\putr8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\images\filesave.png -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\backends\web_backend\ipython_inline_figure.html -> build\lib.win-amd64-cpython-313\matplotlib\backends\web_backend
+  copying lib\matplotlib\mpl-data\images\back_large.png -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\fonts\ttf\STIXNonUniBol.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\stylelib\_mpl-gallery.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\backends\web_backend\css\fbm.css -> build\lib.win-amd64-cpython-313\matplotlib\backends\web_backend\css
+  copying lib\matplotlib\mpl-data\fonts\afm\cmex10.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\pdfcorefonts\Courier-Bold.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\pdfcorefonts
+  copying lib\matplotlib\mpl-data\fonts\afm\pplr8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\afm\pncri8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\afm\pplbi8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\ttf\DejaVuSans-BoldOblique.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\fonts\pdfcorefonts\Times-Italic.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\pdfcorefonts
+  copying lib\matplotlib\mpl-data\images\filesave-symbolic.svg -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\fonts\afm\pagk8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\ttf\cmtt10.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\fonts\afm\phvr8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\kpsewhich.lua -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data
+  copying lib\matplotlib\mpl-data\fonts\ttf\STIXGeneral.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\stylelib\seaborn-v0_8-dark.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\backends\web_backend\.prettierignore -> build\lib.win-amd64-cpython-313\matplotlib\backends\web_backend
+  copying lib\matplotlib\backends\web_backend\css\boilerplate.css -> build\lib.win-amd64-cpython-313\matplotlib\backends\web_backend\css
+  copying lib\matplotlib\mpl-data\fonts\afm\phvr8an.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\ttf\DejaVuSansMono-Bold.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\fonts\afm\cmr10.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\sample_data\Minduka_Present_Blue_Pack.png -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\sample_data
+  copying lib\matplotlib\mpl-data\fonts\afm\ptmbi8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\afm\pzcmi8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\ttf\STIXSizThreeSymBol.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\images\help.svg -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\fonts\afm\psyr.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\afm\phvro8an.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\stylelib\grayscale.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\mpl-data\fonts\ttf\STIXSizTwoSymReg.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\fonts\ttf\DejaVuSansMono.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\backends\web_backend\all_figures.html -> build\lib.win-amd64-cpython-313\matplotlib\backends\web_backend
+  copying lib\matplotlib\mpl-data\images\subplots.png -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\images\home.svg -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\fonts\afm\phvl8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\stylelib\dark_background.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\mpl-data\fonts\afm\phvlo8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\afm\phvb8an.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\afm\pagko8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\sample_data\eeg.dat -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\sample_data
+  copying lib\matplotlib\mpl-data\images\move.svg -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\stylelib\seaborn-v0_8.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\mpl-data\images\hand.svg -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\sample_data\logo2.png -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\sample_data
+  copying lib\matplotlib\mpl-data\fonts\afm\pagd8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\backends\web_backend\.eslintrc.js -> build\lib.win-amd64-cpython-313\matplotlib\backends\web_backend
+  copying lib\matplotlib\mpl-data\fonts\afm\pagdo8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\ttf\STIXSizFourSymReg.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\stylelib\seaborn-v0_8-muted.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\mpl-data\fonts\ttf\STIXGeneralBolIta.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\images\forward.pdf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\sample_data\Stocks.csv -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\sample_data
+  copying lib\matplotlib\mpl-data\sample_data\msft.csv -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\sample_data
+  copying lib\matplotlib\mpl-data\fonts\afm\putri8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\images\move.pdf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\images\subplots_large.png -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\sample_data\topobathy.npz -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\sample_data
+  copying lib\matplotlib\mpl-data\fonts\ttf\DejaVuSerifDisplay.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\images\move_large.png -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\images\help_large.png -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\fonts\ttf\DejaVuSerif-Italic.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\backends\web_backend\js\mpl_tornado.js -> build\lib.win-amd64-cpython-313\matplotlib\backends\web_backend\js
+  copying lib\matplotlib\mpl-data\images\back.svg -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\stylelib\seaborn-v0_8-ticks.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\mpl-data\images\qt4_editor_options.pdf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\images\filesave_large.png -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\sample_data\data_x_x2_x3.csv -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\sample_data
+  copying lib\matplotlib\mpl-data\fonts\afm\phvbo8an.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\ttf\DejaVuSansMono-BoldOblique.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\fonts\afm\pncbi8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  creating build\lib.win-amd64-cpython-313\matplotlib\mpl-data\plot_directive
+  copying lib\matplotlib\mpl-data\plot_directive\plot_directive.css -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\plot_directive
+  copying lib\matplotlib\mpl-data\fonts\pdfcorefonts\Helvetica-Bold.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\pdfcorefonts
+  copying lib\matplotlib\mpl-data\stylelib\seaborn-v0_8-white.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\mpl-data\fonts\afm\pplri8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\images\matplotlib.svg -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\images\help-symbolic.svg -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\fonts\ttf\cmmi10.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\sample_data\s1045.ima.gz -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\sample_data
+  copying lib\matplotlib\mpl-data\images\filesave.pdf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\fonts\pdfcorefonts\Times-Bold.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\pdfcorefonts
+  copying lib\matplotlib\mpl-data\images\home.png -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\fonts\afm\putb8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\ttf\cmb10.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  creating build\lib.win-amd64-cpython-313\matplotlib\mpl-data\sample_data\axes_grid
+  copying lib\matplotlib\mpl-data\sample_data\axes_grid\bivariate_normal.npy -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\sample_data\axes_grid
+  copying lib\matplotlib\mpl-data\fonts\afm\ptmr8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\images\zoom_to_rect_large.png -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\fonts\afm\cmmi10.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\afm\phvb8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\ttf\STIXSizTwoSymBol.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\fonts\ttf\LICENSE_STIX -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\stylelib\bmh.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\mpl-data\fonts\afm\pzdr.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\fonts\ttf\cmss10.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\stylelib\seaborn-v0_8-colorblind.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\backends\web_backend\single_figure.html -> build\lib.win-amd64-cpython-313\matplotlib\backends\web_backend
+  copying lib\matplotlib\mpl-data\sample_data\goog.npz -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\sample_data
+  copying lib\matplotlib\mpl-data\images\zoom_to_rect.png -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\sample_data\jacksboro_fault_dem.npz -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\sample_data
+  copying lib\matplotlib\mpl-data\stylelib\seaborn-v0_8-notebook.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\mpl-data\sample_data\README.txt -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\sample_data
+  copying lib\matplotlib\mpl-data\fonts\ttf\cmex10.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\fonts\ttf\DejaVuSans.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\sample_data\grace_hopper.jpg -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\sample_data
+  copying lib\matplotlib\mpl-data\fonts\afm\pcrro8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\backends\web_backend\js\mpl.js -> build\lib.win-amd64-cpython-313\matplotlib\backends\web_backend\js
+  copying lib\matplotlib\mpl-data\fonts\ttf\STIXSizOneSymReg.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\fonts\ttf\STIXNonUni.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\fonts\ttf\STIXGeneralItalic.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\stylelib\Solarize_Light2.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\mpl-data\stylelib\fast.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\mpl-data\fonts\ttf\STIXNonUniIta.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\stylelib\seaborn-v0_8-talk.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\mpl-data\fonts\ttf\DejaVuSansDisplay.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\images\qt4_editor_options.png -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\images\home.pdf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\backends\web_backend\css\mpl.css -> build\lib.win-amd64-cpython-313\matplotlib\backends\web_backend\css
+  copying lib\matplotlib\mpl-data\images\zoom_to_rect-symbolic.svg -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\images\back-symbolic.svg -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\stylelib\seaborn-v0_8-paper.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\mpl-data\fonts\ttf\cmsy10.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\fonts\ttf\DejaVuSans-Oblique.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\fonts\pdfcorefonts\Helvetica-BoldOblique.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\pdfcorefonts
+  copying lib\matplotlib\mpl-data\images\matplotlib.png -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\fonts\ttf\STIXSizFourSymBol.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\fonts\afm\putbi8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\stylelib\seaborn-v0_8-bright.mplstyle -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\stylelib
+  copying lib\matplotlib\mpl-data\fonts\ttf\DejaVuSerif-Bold.ttf -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\ttf
+  copying lib\matplotlib\mpl-data\sample_data\membrane.dat -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\sample_data
+  copying lib\matplotlib\mpl-data\fonts\afm\pbkdi8a.afm -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\fonts\afm
+  copying lib\matplotlib\mpl-data\images\home-symbolic.svg -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  copying lib\matplotlib\mpl-data\images\move.png -> build\lib.win-amd64-cpython-313\matplotlib\mpl-data\images
+  running build_ext
+  C:\Users\shiva\AppData\Local\Temp\pip-build-env-8crodndp\overlay\Lib\site-packages\vcs_versioning\_backends\_git.py:474: UserWarning: git archive did not support describe output
+    return archival_to_version(data, config=config)
+  C:\Users\shiva\AppData\Local\Temp\pip-build-env-8crodndp\overlay\Lib\site-packages\vcs_versioning\_backends\_git.py:474: UserWarning: unprocessed git archival found (no export subst applied)
+    return archival_to_version(data, config=config)
+  Extracting /project/freetype/freetype2/2.6.1/freetype-2.6.1.tar.gz
+  Building freetype in build\freetype-2.6.1
+  error: Microsoft Visual C++ 14.0 or greater is required. Get it with "Microsoft C++ Build Tools": https://visualstudio.microsoft.com/visual-cpp-build-tools/
+  [end of output]
+  
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+  ERROR: Failed building wheel for matplotlib
+Failed to build matplotlib
+error: failed-wheel-build-for-install
+
+Failed to build installable wheels for some pyproject.toml based projects
+
+matplotlib
