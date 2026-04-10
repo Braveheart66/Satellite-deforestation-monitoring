@@ -12,6 +12,8 @@ from typing import Dict, Tuple
 import cv2
 import os
 from PIL import Image
+from matplotlib import pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
 
 
 class DroneNDVIProcessor:
@@ -109,34 +111,54 @@ class DroneNDVIProcessor:
         Returns:
             Path to created PNG
         """
-        import matplotlib.pyplot as plt
-        import matplotlib.colors as mcolors
+        # Mask nodata and invalid values so they don't skew color interpretation.
+        masked = np.ma.masked_invalid(ndvi_array)
+        masked = np.ma.masked_where(masked <= -999, masked)
 
-        # Create colormap
         if colormap == "RdYlGn":
-            # Red for negative (no vegetation), Yellow for neutral, Green for healthy
-            colors = [
-                (0.8, 0.0, 0.0),    # Dark red for NDVI = -1
-                (1.0, 0.0, 0.0),    # Red for NDVI = -0.5
-                (1.0, 1.0, 0.0),    # Yellow for NDVI = 0
-                (0.0, 1.0, 0.0),    # Green for NDVI = 0.5
-                (0.0, 0.6, 0.0)     # Dark green for NDVI = 1
-            ]
-            cmap = mcolors.LinearSegmentedColormap.from_list("ndvi", colors, N=256)
+            # Tuned palette with stronger separation around low-positive NDVI values.
+            cmap = LinearSegmentedColormap.from_list(
+                "ndvi_prod",
+                [
+                    (0.55, 0.06, 0.06),
+                    (0.85, 0.2, 0.15),
+                    (0.98, 0.76, 0.18),
+                    (0.56, 0.78, 0.34),
+                    (0.14, 0.49, 0.20),
+                ],
+                N=512,
+            )
         else:
             cmap = plt.get_cmap(colormap)
 
-        # Normalize NDVI to 0-1 for colormap
-        norm = mcolors.Normalize(vmin=-1, vmax=1)
-        ndvi_norm = norm(ndvi_array)
+        fig, ax = plt.subplots(figsize=(8.2, 6.8), dpi=170)
+        fig.patch.set_facecolor("#0b1220")
+        ax.set_facecolor("#111827")
 
-        # Apply colormap
-        rgba = cmap(ndvi_norm)
-        rgb = (rgba[:, :, :3] * 255).astype(np.uint8)
+        image = ax.imshow(masked, cmap=cmap, vmin=-1, vmax=1, interpolation="bicubic")
+        ax.set_title("Drone NDVI", color="#e5e7eb", fontsize=13, pad=12, fontweight="bold")
+        ax.set_xticks([])
+        ax.set_yticks([])
 
-        # Save as PNG
-        img = Image.fromarray(rgb)
-        img.save(output_png_path)
+        cbar = fig.colorbar(image, ax=ax, fraction=0.046, pad=0.03)
+        cbar.set_label("NDVI", color="#d1d5db", fontsize=10)
+        cbar.ax.yaxis.set_tick_params(color="#9ca3af", labelcolor="#d1d5db")
+        cbar.outline.set_edgecolor("#374151")
+
+        mean_value = float(np.ma.mean(masked)) if masked.count() else 0.0
+        ax.text(
+            0.02,
+            0.03,
+            f"Mean NDVI: {mean_value:.3f}",
+            transform=ax.transAxes,
+            fontsize=9,
+            color="#e5e7eb",
+            bbox={"boxstyle": "round,pad=0.35", "facecolor": "#0f172a", "edgecolor": "#334155", "alpha": 0.9},
+        )
+
+        plt.tight_layout()
+        fig.savefig(output_png_path, dpi=170, bbox_inches="tight", facecolor=fig.get_facecolor())
+        plt.close(fig)
 
         return output_png_path
 

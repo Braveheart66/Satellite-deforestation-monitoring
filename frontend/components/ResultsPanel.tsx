@@ -20,6 +20,7 @@ type DroneData = {
   total_area_ha: number;
   vegetation_percentage: number;
   mean_ndvi: number;
+  std_ndvi?: number;
   error?: string;
   ndvi_visualization_id?: string;
 };
@@ -212,6 +213,13 @@ function MetricRow({
   );
 }
 
+function getNdviBand(meanNdvi: number) {
+  if (meanNdvi < 0.1) return { label: "Bare / Built-up", color: "#ef4444" };
+  if (meanNdvi < 0.25) return { label: "Sparse Vegetation", color: "#f59e0b" };
+  if (meanNdvi < 0.45) return { label: "Moderate Vegetation", color: "#84cc16" };
+  return { label: "Dense Healthy Vegetation", color: "#22c55e" };
+}
+
 /* =========================================================
    RESULTS PANEL
 ========================================================= */
@@ -237,6 +245,9 @@ export default function ResultsPanel({ result, aoi, apiBase }: ResultsPanelProps
     droneVegetation !== null && satellitePresent > 0
       ? ((droneVegetation - satellitePresent) / satellitePresent) * 100
       : null;
+  const meanNdvi = Number(droneData?.mean_ndvi ?? 0);
+  const ndviBand = getNdviBand(meanNdvi);
+  const ndviProgress = Math.max(0, Math.min(100, ((meanNdvi + 1) / 2) * 100));
   const maxHa = Math.max(past_cover_ha, present_cover_ha, 1);
 
   return (
@@ -484,14 +495,90 @@ export default function ResultsPanel({ result, aoi, apiBase }: ResultsPanelProps
                 <MetricRow label="Vegetation Area" value={droneData.vegetation_area_ha} suffix=" ha" icon="🌿" color="#22c55e" />
                 <MetricRow label="Total Area" value={droneData.total_area_ha} suffix=" ha" icon="📐" />
                 <MetricRow label="Vegetation Coverage" value={droneData.vegetation_percentage} suffix="%" icon="🎯" color="#22c55e" />
-                <MetricRow label="Mean NDVI" value={droneData.mean_ndvi?.toFixed(4) || "N/A"} icon="📊" color="#00d4aa" />
+
+                <div
+                  style={{
+                    marginTop: "0.85rem",
+                    padding: "0.9rem",
+                    borderRadius: "10px",
+                    background: "rgba(255,255,255,0.02)",
+                    border: "1px solid rgba(255,255,255,0.06)",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.55rem" }}>
+                    <span style={{ fontSize: "0.8rem", color: "#9090b0" }}>Mean NDVI</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <span style={{ fontSize: "0.95rem", fontWeight: 800, color: "#00d4aa", fontFamily: "var(--font-heading)" }}>
+                        {Number.isFinite(meanNdvi) ? meanNdvi.toFixed(4) : "N/A"}
+                      </span>
+                      <span
+                        style={{
+                          padding: "0.2rem 0.55rem",
+                          borderRadius: "99px",
+                          fontSize: "0.68rem",
+                          fontWeight: 700,
+                          color: ndviBand.color,
+                          background: `${ndviBand.color}1A`,
+                          border: `1px solid ${ndviBand.color}44`,
+                        }}
+                      >
+                        {ndviBand.label}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      height: "8px",
+                      borderRadius: "999px",
+                      background:
+                        "linear-gradient(90deg, #8b0000 0%, #dc2626 18%, #f59e0b 40%, #84cc16 66%, #15803d 100%)",
+                      position: "relative",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "-2px",
+                        left: `calc(${ndviProgress}% - 4px)`,
+                        width: "8px",
+                        height: "12px",
+                        borderRadius: "4px",
+                        background: "#f8fafc",
+                        boxShadow: "0 0 0 2px rgba(15,23,42,0.9)",
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.35rem", color: "#6b7280", fontSize: "0.68rem" }}>
+                    <span>-1.0</span>
+                    <span>0.0</span>
+                    <span>+1.0</span>
+                  </div>
+                </div>
+
+                {!!droneData.std_ndvi && (
+                  <MetricRow label="NDVI Variability (Std Dev)" value={droneData.std_ndvi.toFixed(3)} icon="〰️" color="#94a3b8" />
+                )}
 
                 {droneData.ndvi_visualization_id && (
-                  <div style={{ marginTop: "1rem" }}>
+                  <div
+                    style={{
+                      marginTop: "1rem",
+                      borderRadius: "12px",
+                      overflow: "hidden",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      background: "rgba(2,6,23,0.65)",
+                    }}
+                  >
+                    <div style={{ padding: "0.55rem 0.8rem", borderBottom: "1px solid rgba(255,255,255,0.07)", fontSize: "0.72rem", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "1.1px" }}>
+                      Drone NDVI Render
+                    </div>
                     <img
                       src={`${apiBase}/drone-ndvi/${droneData.ndvi_visualization_id}`}
                       alt="Drone NDVI"
-                      style={{ maxWidth: "100%", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.06)" }}
+                      style={{ width: "100%", display: "block", objectFit: "cover", maxHeight: "520px" }}
                     />
                   </div>
                 )}
