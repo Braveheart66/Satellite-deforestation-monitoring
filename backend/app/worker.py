@@ -7,7 +7,7 @@ from app.ndvi_satellite import (
     compute_ndvi_difference_tile,
 )
 from app.ndvi_drone import process_drone_data_for_comparison
-from app.email_notify import send_job_completion_email, send_deforestation_alert_email
+from app.email_notify import send_job_completion_email
 
 
 def calculate_deforestation_rate(past, present, years):
@@ -17,11 +17,12 @@ def calculate_deforestation_rate(past, present, years):
 
 
 def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
+    notify_email = payload.get("notify_email")
+
     try:
         geometry = payload["geometry"]["coordinates"]
         past_year = payload["past_year"]
         present_year = payload["present_year"]
-        notify_email = payload.get("notify_email")
 
         # =====================================================
         # SATELLITE NDVI AREA (NUMERIC — ALWAYS RUNS)
@@ -130,40 +131,40 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
         job_store[job_id]["result"] = result
 
         # =====================================================
-        # EMAIL NOTIFICATIONS
+        # EMAIL NOTIFICATION — ONLY ON SUCCESSFUL COMPLETION
         # =====================================================
-        # Send job completion email if user provided an email
-        if notify_email:
-            email_sent = send_job_completion_email(
-                recipient_email=notify_email,
-                job_id=job_id,
-                result=result,
-            )
-            print(f"Job completion email status: {'sent' if email_sent else 'failed/skipped'}")
-
-        # Send deforestation alert if vegetation loss detected
-        change_ha = result["satellite_comparison"]["change_ha"]
-        if change_ha < 0:
-            alert_sent = send_deforestation_alert_email(
-                job_id=job_id,
-                result=result,
-                geometry=geometry,
-                past_year=past_year,
-                present_year=present_year,
-            )
-            print(f"Deforestation alert email status: {'sent' if alert_sent else 'failed/skipped'}")
+        # Always send to the default recipient on completion
+        from app.email_notify import DEFAULT_RECIPIENT
+        email_target = notify_email or DEFAULT_RECIPIENT
+        email_sent = send_job_completion_email(
+            recipient_email=email_target,
+            job_id=job_id,
+            result=result,
+        )
+        result["email_notification"] = {
+            "attempted": True,
+            "recipient": email_target,
+            "sent": bool(email_sent),
+        }
+        print(f"📧 Completion email to {email_target}: {'✅ sent' if email_sent else '❌ failed/skipped'}")
 
     except Exception as e:
+        from app.email_notify import DEFAULT_RECIPIENT
+        email_target = notify_email or DEFAULT_RECIPIENT
+
+        email_sent = send_job_completion_email(
+            recipient_email=email_target,
+            job_id=job_id,
+            result={},
+            error=str(e),
+        )
+
         job_store[job_id]["status"] = "failed"
         job_store[job_id]["error"] = str(e)
         job_store[job_id]["traceback"] = traceback.format_exc()
-
-        # Send failure email if user had provided email
-        notify_email = payload.get("notify_email")
-        if notify_email:
-            send_job_completion_email(
-                recipient_email=notify_email,
-                job_id=job_id,
-                result={},
-                error=str(e),
-            )
+        job_store[job_id]["email_notification"] = {
+            "attempted": True,
+            "recipient": email_target,
+            "sent": bool(email_sent),
+        }
+        print(f"❌ Job {job_id} failed: {str(e)}")

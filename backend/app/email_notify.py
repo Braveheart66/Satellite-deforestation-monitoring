@@ -24,9 +24,16 @@ DEFAULT_RECIPIENT = "shivamsinghraghuvanshi1234@gmail.com"
 # SMTP configuration
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
-SMTP_USER = os.getenv("SMTP_USER", "")
-SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
+SMTP_USER = os.getenv("SMTP_USER", "").strip()
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "").strip()
+SMTP_TIMEOUT = int(os.getenv("SMTP_TIMEOUT", "20"))
+SMTP_USE_SSL = os.getenv("SMTP_USE_SSL", "false").lower() in {"1", "true", "yes", "on"}
 SENDER_NAME = os.getenv("SENDER_NAME", "Deforestation Monitor")
+
+
+def _normalized_smtp_password(raw_password: str) -> str:
+    # Gmail app passwords are commonly pasted with spaces; SMTP expects a compact token.
+    return "".join(raw_password.split())
 
 
 def _build_success_html(job_id: str, result: Dict[str, Any]) -> str:
@@ -200,15 +207,19 @@ def send_job_completion_email(
     Returns:
         bool: True if email sent successfully, False otherwise
     """
-    if not SMTP_USER or not SMTP_PASSWORD:
+    smtp_password = _normalized_smtp_password(SMTP_PASSWORD)
+
+    if not SMTP_USER or not smtp_password:
         print("⚠️ SMTP credentials not configured. Email notifications disabled.")
         print("   Set SMTP_USER and SMTP_PASSWORD in .env to enable.")
         return False
 
     try:
+        to_email = (recipient_email or "").strip() or DEFAULT_RECIPIENT
+
         msg = MIMEMultipart("alternative")
         msg["From"] = f"{SENDER_NAME} <{SMTP_USER}>"
-        msg["To"] = recipient_email
+        msg["To"] = to_email
 
         if error:
             msg["Subject"] = f"❌ Deforestation Analysis Failed — Job {job_id[:8]}"
@@ -231,12 +242,20 @@ def send_job_completion_email(
         msg.attach(MIMEText(plain_text, "plain"))
         msg.attach(MIMEText(html_content, "html"))
 
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-            server.starttls()
-            server.login(SMTP_USER, SMTP_PASSWORD)
-            server.sendmail(SMTP_USER, recipient_email, msg.as_string())
+        use_ssl = SMTP_USE_SSL or SMTP_PORT == 465
+        if use_ssl:
+            with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=SMTP_TIMEOUT) as server:
+                server.login(SMTP_USER, smtp_password)
+                server.sendmail(SMTP_USER, to_email, msg.as_string())
+        else:
+            with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=SMTP_TIMEOUT) as server:
+                server.ehlo()
+                server.starttls()
+                server.ehlo()
+                server.login(SMTP_USER, smtp_password)
+                server.sendmail(SMTP_USER, to_email, msg.as_string())
 
-        print(f"✅ Email sent to {recipient_email}")
+        print(f"✅ Email sent to {to_email}")
         return True
 
     except Exception as e:
@@ -274,7 +293,8 @@ def send_deforestation_alert_email(
         f"Please review the results in the dashboard."
     )
 
-    if not SMTP_USER or not SMTP_PASSWORD:
+    smtp_password = _normalized_smtp_password(SMTP_PASSWORD)
+    if not SMTP_USER or not smtp_password:
         print("⚠️ SMTP credentials not configured. Alert email skipped.")
         return False
 
@@ -289,10 +309,18 @@ def send_deforestation_alert_email(
         html_content = _build_success_html(job_id, result)
         msg.attach(MIMEText(html_content, "html"))
 
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-            server.starttls()
-            server.login(SMTP_USER, SMTP_PASSWORD)
-            server.sendmail(SMTP_USER, DEFAULT_RECIPIENT, msg.as_string())
+        use_ssl = SMTP_USE_SSL or SMTP_PORT == 465
+        if use_ssl:
+            with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=SMTP_TIMEOUT) as server:
+                server.login(SMTP_USER, smtp_password)
+                server.sendmail(SMTP_USER, DEFAULT_RECIPIENT, msg.as_string())
+        else:
+            with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=SMTP_TIMEOUT) as server:
+                server.ehlo()
+                server.starttls()
+                server.ehlo()
+                server.login(SMTP_USER, smtp_password)
+                server.sendmail(SMTP_USER, DEFAULT_RECIPIENT, msg.as_string())
 
         print(f"✅ Deforestation alert email sent to {DEFAULT_RECIPIENT}")
         return True
