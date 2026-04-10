@@ -3,6 +3,8 @@ import traceback
 from typing import Dict
 from pathlib import Path
 import json
+import rasterio
+from rasterio.warp import transform_bounds
 
 from app.ndvi_satellite import (
     compute_satellite_ndvi,
@@ -63,10 +65,65 @@ def _load_demo_aoi_for_tif(tif_name: str) -> dict | None:
             pairs = json.loads(pairs_file.read_text(encoding="utf-8"))
         except Exception:
             continue
-        if tif_name in pairs:
+
+        # Legacy format: { "file.tif": {"type": "Polygon", ...} }
+        if isinstance(pairs, dict) and tif_name in pairs:
             return pairs[tif_name]
 
+        # New format: { "aois": [{"title": "...", "tif": "file.tif", "type": "Polygon", ...}] }
+        if isinstance(pairs, dict) and isinstance(pairs.get("aois"), list):
+            for item in pairs["aois"]:
+                if not isinstance(item, dict):
+                    continue
+                if item.get("tif") == tif_name and item.get("type") == "Polygon":
+                    return {
+                        "type": item.get("type"),
+                        "coordinates": item.get("coordinates", []),
+                    }
+
     return None
+
+
+def _build_inner_aoi_from_raster_bounds(tif_path: str, margin_ratio: float = 0.10) -> dict | None:
+    """Build a guaranteed-overlap AOI from raster bounds in EPSG:4326."""
+    try:
+        with rasterio.open(tif_path) as src:
+            bounds = src.bounds
+            src_crs = src.crs
+
+            if src_crs:
+                west, south, east, north = transform_bounds(
+                    src_crs,
+                    "EPSG:4326",
+                    bounds.left,
+                    bounds.bottom,
+                    bounds.right,
+                    bounds.top,
+                    densify_pts=21,
+                )
+            else:
+                west, south, east, north = bounds.left, bounds.bottom, bounds.right, bounds.top
+
+            width = east - west
+            height = north - south
+            if width <= 0 or height <= 0:
+                return None
+
+            mx = width * margin_ratio
+            my = height * margin_ratio
+
+            return {
+                "type": "Polygon",
+                "coordinates": [[
+                    [west + mx, south + my],
+                    [east - mx, south + my],
+                    [east - mx, north - my],
+                    [west + mx, north - my],
+                    [west + mx, south + my],
+                ]],
+            }
+    except Exception:
+        return None
 
 
 def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
@@ -161,6 +218,26 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
                             }
                             fallback_ok = True
                             print(f"[WARN] Drone AOI mismatch for {tif_name}. Applied matched demo AOI fallback.")
+                        except Exception as fallback_error:
+                            error_msg = str(fallback_error)
+
+                if (not fallback_ok) and ("does not overlap" in error_msg.lower()):
+                    raster_aoi = _build_inner_aoi_from_raster_bounds(payload["drone_image_path"])
+                    if raster_aoi:
+                        try:
+                            result["drone_data"] = process_drone_data_for_comparison(
+                                payload["drone_image_path"],
+                                raster_aoi,
+                            )
+                            result["drone_data_aoi_fallback"] = {
+                                "used": True,
+                                "reason": "Provided AOI did not overlap the drone TIFF. Used AOI derived from raster bounds.",
+                                "tif": tif_name,
+                            }
+                            # Keep location summary and email details consistent with final AOI actually used.
+                            result["analysis_location"] = _build_location_summary(raster_aoi["coordinates"])
+                            fallback_ok = True
+                            print(f"[WARN] Drone AOI mismatch for {tif_name}. Applied raster-bounds AOI fallback.")
                         except Exception as fallback_error:
                             error_msg = str(fallback_error)
 
