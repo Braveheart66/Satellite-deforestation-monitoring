@@ -348,14 +348,31 @@ class DroneNDVIProcessor:
         total_area_ha = (total_pixels * pixel_area) / 10000
         vegetation_area_ha = (vegetation_pixels * pixel_area) / 10000
 
+        if valid_ndvi.size == 0:
+            mean_ndvi = 0.0
+            std_ndvi = 0.0
+        else:
+            mean_ndvi = float(np.mean(valid_ndvi))
+            std_ndvi = float(np.std(valid_ndvi))
+
+        # Keep values JSON-safe; non-finite floats can crash FastAPI JSON rendering.
+        if not np.isfinite(total_area_ha):
+            total_area_ha = 0.0
+        if not np.isfinite(vegetation_area_ha):
+            vegetation_area_ha = 0.0
+        if not np.isfinite(mean_ndvi):
+            mean_ndvi = 0.0
+        if not np.isfinite(std_ndvi):
+            std_ndvi = 0.0
+
         return {
             "total_area_ha": round(total_area_ha, 2),
             "vegetation_area_ha": round(vegetation_area_ha, 2),
             "vegetation_percentage": round(
                 (vegetation_pixels / total_pixels * 100) if total_pixels else 0, 2
             ),
-            "mean_ndvi": round(float(np.mean(valid_ndvi)), 3),
-            "std_ndvi": round(float(np.std(valid_ndvi)), 3)
+            "mean_ndvi": round(mean_ndvi, 3),
+            "std_ndvi": round(std_ndvi, 3)
         }
 
 

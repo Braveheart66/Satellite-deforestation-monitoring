@@ -3,6 +3,7 @@ import traceback
 from typing import Dict
 from pathlib import Path
 import json
+import math
 import rasterio
 from rasterio.warp import transform_bounds
 
@@ -124,6 +125,19 @@ def _build_inner_aoi_from_raster_bounds(tif_path: str, margin_ratio: float = 0.1
             }
     except Exception:
         return None
+
+
+def _json_safe_value(value):
+    """Recursively convert non-finite floats to None for strict JSON compliance."""
+    if isinstance(value, dict):
+        return {k: _json_safe_value(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_json_safe_value(v) for v in value]
+    if isinstance(value, tuple):
+        return [_json_safe_value(v) for v in value]
+    if isinstance(value, float):
+        return value if math.isfinite(value) else None
+    return value
 
 
 def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
@@ -285,7 +299,7 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
                 )
             }
 
-        job_store[job_id]["result"] = result
+        job_store[job_id]["result"] = _json_safe_value(result)
 
         # =====================================================
         # EMAIL NOTIFICATION — ONLY ON SUCCESSFUL COMPLETION
