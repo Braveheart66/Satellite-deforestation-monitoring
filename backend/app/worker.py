@@ -1,6 +1,7 @@
 import ee
 import traceback
 from typing import Dict
+from pathlib import Path
 
 from app.ndvi_satellite import (
     compute_satellite_ndvi,
@@ -14,6 +15,36 @@ def calculate_deforestation_rate(past, present, years):
     if past <= 0 or years <= 0:
         return 0.0
     return round(((present - past) / past) / years * 100, 3)
+
+
+def _build_location_summary(geometry: list) -> dict:
+    """Build a compact AOI summary for logging, API response, and emails."""
+    ring = geometry[0] if geometry else []
+    if not ring:
+        return {}
+
+    lons = [pt[0] for pt in ring]
+    lats = [pt[1] for pt in ring]
+    west, east = min(lons), max(lons)
+    south, north = min(lats), max(lats)
+
+    # If polygon is explicitly closed, don't count the repeated last point as a vertex.
+    closed = len(ring) > 1 and ring[0] == ring[-1]
+    vertex_count = len(ring) - 1 if closed else len(ring)
+
+    return {
+        "centroid": {
+            "lng": round((west + east) / 2, 6),
+            "lat": round((south + north) / 2, 6),
+        },
+        "bbox": {
+            "west": round(west, 6),
+            "south": round(south, 6),
+            "east": round(east, 6),
+            "north": round(north, 6),
+        },
+        "aoi_vertices": int(vertex_count),
+    }
 
 
 def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
@@ -49,7 +80,8 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
                 "past_cover_ha": round(past_ha, 2),
                 "present_cover_ha": round(present_ha, 2),
                 "change_ha": round(present_ha - past_ha, 2),
-            }
+            },
+            "analysis_location": _build_location_summary(geometry),
         }
 
         # =====================================================
@@ -78,6 +110,10 @@ def run_ndvi_job(job_id: str, payload: dict, job_store: Dict):
         # DRONE DATA (OPTIONAL & SAFE)
         # =====================================================
         if "drone_image_path" in payload:
+            result["drone_input"] = {
+                "path": payload["drone_image_path"],
+                "filename": Path(payload["drone_image_path"]).name,
+            }
             try:
                 result["drone_data"] = process_drone_data_for_comparison(
                     payload["drone_image_path"],

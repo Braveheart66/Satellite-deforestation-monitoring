@@ -72,6 +72,10 @@ def _get_smtp_settings() -> Dict[str, Any]:
 def _build_success_html(job_id: str, result: Dict[str, Any]) -> str:
     """Build rich HTML email for successful job."""
     satellite = result.get("satellite_comparison", {})
+    location = result.get("analysis_location", {})
+    bbox = location.get("bbox", {})
+    centroid = location.get("centroid", {})
+    drone_input = result.get("drone_input", {})
     past_cover = satellite.get("past_cover_ha", 0)
     present_cover = satellite.get("present_cover_ha", 0)
     change = satellite.get("change_ha", 0)
@@ -103,6 +107,41 @@ def _build_success_html(job_id: str, result: Dict[str, Any]) -> str:
                 <td style="color:#fff; text-align:right; font-weight:600;">{drone_data.get('vegetation_percentage', 0):.2f}%</td>
               </tr>
             </table>
+          </td>
+        </tr>
+        """
+
+    location_section = ""
+    if bbox and centroid:
+        location_section = f"""
+        <tr>
+          <td style="padding:16px 24px; border-top:1px solid #2a2a3e;">
+            <h3 style="color:#00d4aa; margin:0 0 12px 0; font-size:16px;">📍 Analysis Location</h3>
+            <table style="width:100%; border-collapse:collapse;">
+              <tr>
+                <td style="color:#a0a0b8; padding:4px 0;">Centroid</td>
+                <td style="color:#fff; text-align:right; font-weight:600;">{centroid.get('lat', 0)}, {centroid.get('lng', 0)}</td>
+              </tr>
+              <tr>
+                <td style="color:#a0a0b8; padding:4px 0;">Bounding Box</td>
+                <td style="color:#fff; text-align:right; font-weight:600;">W {bbox.get('west', 0)} | S {bbox.get('south', 0)} | E {bbox.get('east', 0)} | N {bbox.get('north', 0)}</td>
+              </tr>
+              <tr>
+                <td style="color:#a0a0b8; padding:4px 0;">AOI Vertices</td>
+                <td style="color:#fff; text-align:right; font-weight:600;">{location.get('aoi_vertices', 0)}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        """
+
+    drone_input_section = ""
+    if drone_input.get("filename"):
+        drone_input_section = f"""
+        <tr>
+          <td style="padding:16px 24px; border-top:1px solid #2a2a3e;">
+            <h3 style="color:#00d4aa; margin:0 0 8px 0; font-size:16px;">🗂️ Drone Source</h3>
+            <p style="color:#fff; margin:0; font-size:14px;">{drone_input.get('filename')}</p>
           </td>
         </tr>
         """
@@ -161,6 +200,8 @@ def _build_success_html(job_id: str, result: Dict[str, Any]) -> str:
               </tr>
 
               {drone_section}
+              {drone_input_section}
+              {location_section}
 
               <!-- Footer -->
               <tr>
@@ -243,7 +284,7 @@ def send_job_completion_email(
     smtp = _get_smtp_settings()
 
     if not smtp["user"] or not smtp["password"]:
-        print("⚠️ SMTP credentials not configured. Email notifications disabled.")
+        print("[WARN] SMTP credentials not configured. Email notifications disabled.")
         print(f"   Checked env file: {env_path}")
         print("   Set SMTP_USER and SMTP_PASSWORD in backend/.env to enable.")
         return False
@@ -261,6 +302,10 @@ def send_job_completion_email(
             plain_text = f"Deforestation Analysis FAILED\n\nJob ID: {job_id[:8]}...\nError: {error}\n\nPlease try again."
         else:
             satellite = result.get("satellite_comparison", {})
+            location = result.get("analysis_location", {})
+            bbox = location.get("bbox", {})
+            centroid = location.get("centroid", {})
+            drone_input = result.get("drone_input", {})
             change = satellite.get("change_ha", 0)
             status = "Loss Detected" if change < 0 else "Gain Detected" if change > 0 else "Stable"
             msg["Subject"] = f"🌍 Deforestation Analysis Complete — {status}"
@@ -272,6 +317,15 @@ def send_job_completion_email(
                 f"Present: {satellite.get('present_cover_ha', 0)} ha\n"
                 f"Change: {change} ha\n"
             )
+            if bbox and centroid:
+                plain_text += (
+                    f"\nLocation Summary\n"
+                    f"Centroid: {centroid.get('lat', 0)}, {centroid.get('lng', 0)}\n"
+                    f"BBox: W {bbox.get('west', 0)}, S {bbox.get('south', 0)}, E {bbox.get('east', 0)}, N {bbox.get('north', 0)}\n"
+                    f"AOI Vertices: {location.get('aoi_vertices', 0)}\n"
+                )
+            if drone_input.get("filename"):
+                plain_text += f"Drone TIFF: {drone_input.get('filename')}\n"
 
         msg.attach(MIMEText(plain_text, "plain"))
         msg.attach(MIMEText(html_content, "html"))
@@ -289,11 +343,11 @@ def send_job_completion_email(
                 server.login(smtp["user"], smtp["password"])
                 server.sendmail(smtp["user"], to_email, msg.as_string())
 
-        print(f"✅ Email sent to {to_email}")
+        print(f"[OK] Email sent to {to_email}")
         return True
 
     except Exception as e:
-        print(f"❌ Failed to send email: {str(e)}")
+        print(f"[ERROR] Failed to send email: {str(e)}")
         return False
 
 
@@ -329,7 +383,7 @@ def send_deforestation_alert_email(
 
     smtp = _get_smtp_settings()
     if not smtp["user"] or not smtp["password"]:
-        print("⚠️ SMTP credentials not configured. Alert email skipped.")
+        print("[WARN] SMTP credentials not configured. Alert email skipped.")
         return False
 
     try:
@@ -356,9 +410,9 @@ def send_deforestation_alert_email(
                 server.login(smtp["user"], smtp["password"])
                 server.sendmail(smtp["user"], DEFAULT_RECIPIENT, msg.as_string())
 
-        print(f"✅ Deforestation alert email sent to {DEFAULT_RECIPIENT}")
+        print(f"[OK] Deforestation alert email sent to {DEFAULT_RECIPIENT}")
         return True
 
     except Exception as e:
-        print(f"❌ Failed to send alert email: {str(e)}")
+        print(f"[ERROR] Failed to send alert email: {str(e)}")
         return False
